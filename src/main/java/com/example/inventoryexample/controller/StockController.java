@@ -5,7 +5,7 @@ import com.example.inventoryexample.service.StockService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity;  
 import org.springframework.web.bind.annotation.*;
 
 @RestController

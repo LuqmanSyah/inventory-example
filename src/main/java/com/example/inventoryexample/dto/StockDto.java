@@ -24,6 +24,8 @@ public class StockDto {
     
     private String categoryName;
     
+    private String supplierName;
+    
     @NotNull(message = "Jumlah stok tidak boleh kosong")
     @Min(value = 0, message = "Jumlah stok tidak boleh kurang dari 0")
     private Integer quantity;

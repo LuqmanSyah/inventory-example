@@ -90,7 +90,9 @@ public class StockService {
         dto.setProductName(stock.getProduct().getName());
         dto.setProductSku(stock.getProduct().getSku());
         dto.setCategoryName(stock.getProduct().getCategory() != null ? 
-                stock.getProduct().getCategory().getName() : null);
+                stock.getProduct().getCategory().getName() : "-");
+        dto.setSupplierName(stock.getProduct().getSupplier() != null ? 
+                stock.getProduct().getSupplier().getName() : "-");
         dto.setQuantity(stock.getQuantity());
         dto.setMinimumStock(stock.getMinimumStock());
         dto.setLastRestockDate(stock.getLastRestockDate());
