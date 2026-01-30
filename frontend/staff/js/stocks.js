@@ -198,12 +198,11 @@ async function saveStockAdjustment() {
   }
 
   try {
-    const endpoint = type === "add" ? `${API_ENDPOINTS.stocks}/add/${productId}` : `${API_ENDPOINTS.stocks}/reduce/${productId}`;
+    const endpoint = type === "add" ? `${API_ENDPOINTS.stocks}/product/${productId}/add` : `${API_ENDPOINTS.stocks}/product/${productId}/reduce`;
 
     await axios.post(endpoint, null, {
       params: {
         quantity: quantity,
-        reason: reason,
       },
     });
 
