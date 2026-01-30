@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suppliers - Inventory Management System</title>
+    <title>Supplier - Sistem Inventori Barang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -17,7 +17,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.html">
-                <i class="bi bi-box-seam"></i> Inventory System
+                <i class="bi bi-box-seam"></i> Inventori Barang
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -31,23 +31,35 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="products.html">
-                            <i class="bi bi-box"></i> Products
+                            <i class="bi bi-box"></i> Produk
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="categories.html">
-                            <i class="bi bi-tags"></i> Categories
+                            <i class="bi bi-tag"></i> Kategori
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="suppliers.html">
-                            <i class="bi bi-truck"></i> Suppliers
+                            <i class="bi bi-truck"></i> Supplier
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="stocks.html">
-                            <i class="bi bi-graph-up"></i> Stocks
+                            <i class="bi bi-graph-up"></i> Stok
                         </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> <span id="userNameDisplay">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="#" id="logoutBtn">
+                                    <i class="bi bi-box-arrow-right"></i> Keluar
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>
@@ -57,9 +69,9 @@
     <!-- Main Content -->
     <div class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1><i class="bi bi-truck"></i> Suppliers Management</h1>
+            <h1><i class="bi bi-truck"></i> Manajemen Supplier</h1>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#supplierModal" onclick="openAddModal()">
-                <i class="bi bi-plus-circle"></i> Add Supplier
+                <i class="bi bi-plus-circle"></i> Tambah Supplier
             </button>
         </div>
 
@@ -116,12 +128,8 @@
                     <form id="supplierForm">
                         <input type="hidden" id="supplierId">
                         <div class="mb-3">
-                            <label for="supplierName" class="form-label">Supplier Name <span class="text-danger">*</span></label>
+                            <label for="supplierName" class="form-label">Nama Supplier <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="supplierName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="supplierContactPerson" class="form-label">Contact Person</label>
-                            <input type="text" class="form-control" id="supplierContactPerson">
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -129,13 +137,17 @@
                                 <input type="email" class="form-control" id="supplierEmail">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="supplierPhone" class="form-label">Phone</label>
-                                <input type="tel" class="form-control" id="supplierPhone">
+                                <label for="supplierPhoneNumber" class="form-label">No. Telepon</label>
+                                <input type="tel" class="form-control" id="supplierPhoneNumber">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="supplierAddress" class="form-label">Address</label>
+                            <label for="supplierAddress" class="form-label">Alamat</label>
                             <textarea class="form-control" id="supplierAddress" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="supplierDescription" class="form-label">Deskripsi</label>
+                            <textarea class="form-control" id="supplierDescription" rows="2"></textarea>
                         </div>
                     </form>
                 </div>
@@ -171,6 +183,51 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="js/config.js"></script>
+    <script src="js/auth-helper.js"></script>
     <script src="js/suppliers.js"></script>
+
+    <!-- Logout Confirmation Modal -->
+    <div
+        class="modal fade"
+        id="logoutModal"
+        tabindex="-1"
+        aria-labelledby="logoutModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom">
+                    <h1 class="modal-title fs-5" id="logoutModalLabel">
+                        <i class="bi bi-exclamation-triangle text-warning"></i> Konfirmasi Keluar
+                    </h1>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Apakah Anda yakin ingin keluar dari sistem inventori?</p>
+                </div>
+                <div class="modal-footer border-top">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        id="confirmLogoutBtn"
+                    >
+                        <i class="bi bi-box-arrow-right"></i> Ya, Keluar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

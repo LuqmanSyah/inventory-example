@@ -3,6 +3,8 @@ let allCategories = [];
 let deleteCategoryId = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+    checkAuth(); // Verify user is logged in
+    setUserDisplay(); // Set user display name
     loadCategories();
     setupEventListeners();
 });

@@ -6,6 +6,8 @@ let currentStockId = null;
 let currentProductId = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+    checkAuth(); // Verify user is logged in
+    setUserDisplay(); // Set user display name
     loadAllStocks();
     loadLowStocks();
     loadOutOfStocks();

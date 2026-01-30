@@ -5,6 +5,8 @@ let suppliers = [];
 let deleteProductId = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+    checkAuth(); // Verify user is logged in
+    setUserDisplay(); // Set user display name
     loadProducts();
     loadCategories();
     loadSuppliers();

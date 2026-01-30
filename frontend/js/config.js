@@ -3,6 +3,7 @@ const API_BASE_URL = 'http://localhost:8080/api';
 
 // API Endpoints
 const API_ENDPOINTS = {
+    auth: `${API_BASE_URL}/auth`,
     products: `${API_BASE_URL}/products`,
     categories: `${API_BASE_URL}/categories`,
     suppliers: `${API_BASE_URL}/suppliers`,

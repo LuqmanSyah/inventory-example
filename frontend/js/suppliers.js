@@ -3,6 +3,8 @@ let allSuppliers = [];
 let deleteSupplierId = null;
 
 document.addEventListener("DOMContentLoaded", function () {
+  checkAuth(); // Verify user is logged in
+  setUserDisplay(); // Set user display name
   loadSuppliers();
   setupEventListeners();
 });
@@ -39,10 +41,10 @@ function displaySuppliers(suppliers) {
         <tr>
             <td>${supplier.id}</td>
             <td><strong>${supplier.name}</strong></td>
-            <td>${supplier.contactPerson || "-"}</td>
+            <td>${supplier.phoneNumber || "-"}</td>
             <td>${supplier.email || "-"}</td>
-            <td>${supplier.phone || "-"}</td>
             <td>${supplier.address || "-"}</td>
+            <td>${supplier.description || "-"}</td>
             <td>
                 <button class="btn btn-sm btn-warning" onclick="openEditModal(${supplier.id})" title="Edit">
                     <i class="bi bi-pencil"></i>
@@ -90,12 +92,11 @@ async function openEditModal(id) {
 
     document.getElementById("modalTitle").textContent = "Edit Supplier";
     document.getElementById("supplierId").value = supplier.id;
-    document.getElementById("supplierName").value = supplier.name;
-    document.getElementById("supplierContactPerson").value =
-      supplier.contactPerson || "";
+    document.getElementById("supplierName").value = supplier.name || "";
+    document.getElementById("supplierPhoneNumber").value = supplier.phoneNumber || "";
     document.getElementById("supplierEmail").value = supplier.email || "";
-    document.getElementById("supplierPhone").value = supplier.phone || "";
     document.getElementById("supplierAddress").value = supplier.address || "";
+    document.getElementById("supplierDescription").value = supplier.description || "";
 
     const modal = new bootstrap.Modal(document.getElementById("supplierModal"));
     modal.show();
@@ -115,22 +116,21 @@ async function saveSupplier() {
   const supplierId = document.getElementById("supplierId").value;
   const supplierData = {
     name: document.getElementById("supplierName").value,
-    contactPerson:
-      document.getElementById("supplierContactPerson").value || null,
+    phoneNumber: document.getElementById("supplierPhoneNumber").value || null,
     email: document.getElementById("supplierEmail").value || null,
-    phone: document.getElementById("supplierPhone").value || null,
     address: document.getElementById("supplierAddress").value || null,
+    description: document.getElementById("supplierDescription").value || null,
   };
 
   try {
     if (supplierId) {
       // Update existing supplier
       await axios.put(`${API_ENDPOINTS.suppliers}/${supplierId}`, supplierData);
-      showAlert("Supplier updated successfully!", "success");
+      showAlert("Supplier berhasil diperbarui!", "success");
     } else {
       // Create new supplier
       await axios.post(API_ENDPOINTS.suppliers, supplierData);
-      showAlert("Supplier created successfully!", "success");
+      showAlert("Supplier berhasil ditambahkan!", "success");
     }
 
     // Close modal and reload suppliers
