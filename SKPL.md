@@ -2,8 +2,8 @@
 
 ## Sistem Manajemen Inventori Barang
 
-**Versi Dokumen:** 1.0  
-**Tanggal:** 30 Januari 2026  
+**Versi Dokumen:** 1.1  
+**Tanggal:** 31 Januari 2026  
 **Nama Aplikasi:** Inventory Management System
 
 ---
@@ -23,17 +23,23 @@ Sistem Manajemen Inventori Barang adalah aplikasi berbasis web yang digunakan un
 - Mengelola data supplier/pemasok
 - Memonitor stok barang secara real-time
 - Mendeteksi produk dengan stok rendah atau habis
+- Mengelola pengguna sistem dengan role-based access control
+- Autentikasi pengguna untuk keamanan sistem
 
 ### 1.3 Definisi dan Istilah
 
-| Istilah | Definisi |
-|---------|----------|
-| SKU | Stock Keeping Unit - kode unik untuk identifikasi produk |
-| CRUD | Create, Read, Update, Delete - operasi dasar pada data |
-| REST API | Representational State Transfer API - antarmuka pemrograman berbasis HTTP |
-| Low Stock | Kondisi ketika jumlah stok sama dengan atau di bawah minimum stok |
-| Out of Stock | Kondisi ketika jumlah stok bernilai 0 |
-| Dashboard | Halaman utama yang menampilkan ringkasan informasi sistem |
+| Istilah        | Definisi                                                                  |
+| -------------- | ------------------------------------------------------------------------- |
+| SKU            | Stock Keeping Unit - kode unik untuk identifikasi produk                  |
+| CRUD           | Create, Read, Update, Delete - operasi dasar pada data                    |
+| REST API       | Representational State Transfer API - antarmuka pemrograman berbasis HTTP |
+| Low Stock      | Kondisi ketika jumlah stok sama dengan atau di bawah minimum stok         |
+| Out of Stock   | Kondisi ketika jumlah stok bernilai 0                                     |
+| Dashboard      | Halaman utama yang menampilkan ringkasan informasi sistem                 |
+| Admin          | Pengguna dengan akses penuh ke semua fitur sistem                         |
+| Staff          | Pengguna dengan akses terbatas ke kelola produk, stok, dan supplier       |
+| Role           | Peran pengguna yang menentukan hak akses dalam sistem                     |
+| Authentication | Proses verifikasi identitas pengguna                                      |
 
 ### 1.4 Referensi
 
@@ -57,17 +63,20 @@ Sistem Manajemen Inventori Barang merupakan aplikasi standalone yang terdiri dar
 
 Sistem memiliki fungsi-fungsi utama sebagai berikut:
 
-1. **Manajemen Kategori**: Mengelola kategori produk
-2. **Manajemen Supplier**: Mengelola data pemasok/supplier
-3. **Manajemen Produk**: Mengelola data produk dengan relasi ke kategori dan supplier
-4. **Manajemen Stok**: Mengelola dan memonitor stok barang
-5. **Dashboard**: Menampilkan ringkasan dan alert stok
+1. **Autentikasi Pengguna**: Login dan manajemen sesi pengguna
+2. **Manajemen Pengguna**: Mengelola data pengguna dan hak akses berdasarkan role
+3. **Manajemen Kategori**: Mengelola kategori produk
+4. **Manajemen Supplier**: Mengelola data pemasok/supplier
+5. **Manajemen Produk**: Mengelola data produk dengan relasi ke kategori dan supplier
+6. **Manajemen Stok**: Mengelola dan memonitor stok barang
+7. **Dashboard**: Menampilkan ringkasan dan alert stok
 
 ### 2.3 Karakteristik Pengguna
 
-| Pengguna | Deskripsi | Kemampuan |
-|----------|-----------|-----------|
-| Admin/Staff Inventori | Pengguna utama sistem yang bertanggung jawab mengelola inventori | Mengelola semua modul (kategori, supplier, produk, stok) |
+| Pengguna | Deskripsi                               | Kemampuan                                                                                   |
+| -------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Admin    | Administrator sistem dengan akses penuh | Mengelola semua modul termasuk: pengguna, kategori, supplier, produk, stok                  |
+| Staff    | Staff inventori dengan akses terbatas   | Mengelola produk, supplier, dan stok. Tidak dapat mengakses manajemen pengguna dan kategori |
 
 ### 2.4 Batasan Sistem
 
@@ -85,31 +94,139 @@ Sistem memiliki fungsi-fungsi utama sebagai berikut:
 
 ## 3. KEBUTUHAN FUNGSIONAL
 
-### 3.1 Modul Kategori (Category)
+### 3.1 Modul Autentikasi (Authentication)
+
+#### KF-AUTH-01: Login Pengguna
+
+- **Deskripsi**: Sistem harus dapat memverifikasi kredensial pengguna dan memberikan akses ke sistem
+- **Input**: Username, password
+- **Output**: Data pengguna yang berhasil login (ID, username, nama lengkap, email, role)
+- **Validasi**:
+  - Username tidak boleh kosong
+  - Password tidak boleh kosong
+  - Kredensial harus valid
+  - Akun pengguna harus aktif
+
+#### KF-AUTH-02: Melihat Profil Pengguna
+
+- **Deskripsi**: Sistem harus dapat menampilkan profil pengguna yang sedang login
+- **Input**: ID pengguna
+- **Output**: Data profil pengguna (ID, username, nama lengkap, email, nomor telepon, role)
+
+#### KF-AUTH-03: Mengubah Profil Pengguna
+
+- **Deskripsi**: Sistem harus dapat mengubah data profil pengguna yang sedang login
+- **Input**: ID pengguna, nama lengkap baru, email baru, nomor telepon baru, password baru (opsional)
+- **Output**: Data profil yang sudah diupdate
+- **Validasi**:
+  - Nama lengkap tidak boleh kosong
+  - Format email harus valid
+  - Email harus unik
+
+---
+
+### 3.2 Modul Pengguna (User)
+
+#### KF-USR-01: Melihat Daftar Pengguna
+
+- **Deskripsi**: Sistem harus dapat menampilkan semua pengguna yang terdaftar dalam sistem
+- **Input**: Tidak ada
+- **Output**: Daftar pengguna beserta informasi ID, username, nama lengkap, email, role, dan status aktif
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-02: Melihat Detail Pengguna
+
+- **Deskripsi**: Sistem harus dapat menampilkan detail satu pengguna berdasarkan ID
+- **Input**: ID pengguna
+- **Output**: Detail pengguna lengkap
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-03: Melihat Pengguna Berdasarkan Role
+
+- **Deskripsi**: Sistem harus dapat memfilter pengguna berdasarkan role (Admin/Staff)
+- **Input**: Role pengguna
+- **Output**: Daftar pengguna dengan role tersebut
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-04: Menambah Pengguna Baru
+
+- **Deskripsi**: Sistem harus dapat mendaftarkan pengguna baru ke database
+- **Input**: Username (wajib), password (wajib), nama lengkap (wajib), email (wajib), nomor telepon (opsional), role (wajib)
+- **Output**: Data pengguna yang berhasil disimpan
+- **Validasi**:
+  - Username tidak boleh kosong dan harus unik
+  - Password tidak boleh kosong
+  - Nama lengkap tidak boleh kosong
+  - Format email harus valid dan harus unik
+  - Role harus valid (ADMIN atau STAFF)
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-05: Mengubah Data Pengguna
+
+- **Deskripsi**: Sistem harus dapat mengubah data pengguna yang sudah ada
+- **Input**: ID pengguna, data baru
+- **Output**: Data pengguna yang sudah diupdate
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-06: Mengubah Status Aktif Pengguna
+
+- **Deskripsi**: Sistem harus dapat mengaktifkan atau menonaktifkan pengguna
+- **Input**: ID pengguna
+- **Output**: Data pengguna dengan status yang sudah diubah
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-07: Reset Password Pengguna
+
+- **Deskripsi**: Sistem harus dapat mereset password pengguna ke password baru
+- **Input**: ID pengguna
+- **Output**: Password baru yang di-generate oleh sistem
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-08: Menghapus Pengguna
+
+- **Deskripsi**: Sistem harus dapat menghapus pengguna dari database
+- **Input**: ID pengguna
+- **Output**: Konfirmasi penghapusan
+- **Hak Akses**: Hanya Admin
+
+#### KF-USR-09: Melihat Statistik Pengguna
+
+- **Deskripsi**: Sistem harus dapat menampilkan statistik pengguna
+- **Output**: Total pengguna, jumlah Admin, jumlah Staff, jumlah pengguna aktif, jumlah pengguna non-aktif
+- **Hak Akses**: Hanya Admin
+
+---
+
+### 3.3 Modul Kategori (Category)
 
 #### KF-CAT-01: Melihat Daftar Kategori
+
 - **Deskripsi**: Sistem harus dapat menampilkan semua kategori yang tersimpan dalam database
 - **Input**: Tidak ada
 - **Output**: Daftar kategori beserta informasi ID, nama, deskripsi, dan jumlah produk
 
 #### KF-CAT-02: Melihat Detail Kategori
+
 - **Deskripsi**: Sistem harus dapat menampilkan detail satu kategori berdasarkan ID
 - **Input**: ID kategori
 - **Output**: Detail kategori meliputi ID, nama, deskripsi, tanggal dibuat, dan tanggal diupdate
 
 #### KF-CAT-03: Menambah Kategori Baru
+
 - **Deskripsi**: Sistem harus dapat menyimpan kategori baru ke database
 - **Input**: Nama kategori (wajib), deskripsi (opsional)
 - **Output**: Data kategori yang berhasil disimpan
 - **Validasi**: Nama kategori tidak boleh kosong dan harus unik
 
 #### KF-CAT-04: Mengubah Data Kategori
+
 - **Deskripsi**: Sistem harus dapat mengubah data kategori yang sudah ada
 - **Input**: ID kategori, nama baru, deskripsi baru
 - **Output**: Data kategori yang sudah diupdate
 - **Validasi**: Nama kategori tidak boleh kosong
 
 #### KF-CAT-05: Menghapus Kategori
+
 - **Deskripsi**: Sistem harus dapat menghapus kategori dari database
 - **Input**: ID kategori
 - **Output**: Konfirmasi penghapusan
@@ -117,38 +234,44 @@ Sistem memiliki fungsi-fungsi utama sebagai berikut:
 
 ---
 
-### 3.2 Modul Supplier
+### 3.4 Modul Supplier
 
 #### KF-SUP-01: Melihat Daftar Supplier
+
 - **Deskripsi**: Sistem harus dapat menampilkan semua supplier yang tersimpan dalam database
 - **Input**: Tidak ada
 - **Output**: Daftar supplier beserta informasi ID, nama, alamat, telepon, email, dan deskripsi
 
 #### KF-SUP-02: Melihat Detail Supplier
+
 - **Deskripsi**: Sistem harus dapat menampilkan detail satu supplier berdasarkan ID
 - **Input**: ID supplier
 - **Output**: Detail supplier lengkap
 
 #### KF-SUP-03: Mencari Supplier
+
 - **Deskripsi**: Sistem harus dapat mencari supplier berdasarkan nama
 - **Input**: Kata kunci pencarian nama
 - **Output**: Daftar supplier yang sesuai dengan kata kunci
 
 #### KF-SUP-04: Menambah Supplier Baru
+
 - **Deskripsi**: Sistem harus dapat menyimpan supplier baru ke database
 - **Input**: Nama (wajib), alamat (wajib), nomor telepon (opsional), email (opsional), deskripsi (opsional)
 - **Output**: Data supplier yang berhasil disimpan
-- **Validasi**: 
+- **Validasi**:
   - Nama supplier tidak boleh kosong
   - Alamat tidak boleh kosong
   - Format email harus valid (jika diisi)
 
 #### KF-SUP-05: Mengubah Data Supplier
+
 - **Deskripsi**: Sistem harus dapat mengubah data supplier yang sudah ada
 - **Input**: ID supplier, data baru
 - **Output**: Data supplier yang sudah diupdate
 
 #### KF-SUP-06: Menghapus Supplier
+
 - **Deskripsi**: Sistem harus dapat menghapus supplier dari database
 - **Input**: ID supplier
 - **Output**: Konfirmasi penghapusan
@@ -156,36 +279,42 @@ Sistem memiliki fungsi-fungsi utama sebagai berikut:
 
 ---
 
-### 3.3 Modul Produk (Product)
+### 3.5 Modul Produk (Product)
 
 #### KF-PRD-01: Melihat Daftar Produk
+
 - **Deskripsi**: Sistem harus dapat menampilkan semua produk yang tersimpan dalam database
 - **Input**: Tidak ada
 - **Output**: Daftar produk beserta informasi ID, nama, SKU, deskripsi, kategori, supplier, harga, dan status stok
 
 #### KF-PRD-02: Melihat Detail Produk
+
 - **Deskripsi**: Sistem harus dapat menampilkan detail satu produk berdasarkan ID
 - **Input**: ID produk
 - **Output**: Detail produk lengkap termasuk informasi stok
 
 #### KF-PRD-03: Mencari Produk Berdasarkan Nama
+
 - **Deskripsi**: Sistem harus dapat mencari produk berdasarkan nama
 - **Input**: Kata kunci pencarian nama
 - **Output**: Daftar produk yang sesuai dengan kata kunci
 
 #### KF-PRD-04: Melihat Produk Berdasarkan Kategori
+
 - **Deskripsi**: Sistem harus dapat memfilter produk berdasarkan kategori
 - **Input**: ID kategori
 - **Output**: Daftar produk dalam kategori tersebut
 
 #### KF-PRD-05: Melihat Produk Berdasarkan Supplier
+
 - **Deskripsi**: Sistem harus dapat memfilter produk berdasarkan supplier
 - **Input**: ID supplier
 - **Output**: Daftar produk dari supplier tersebut
 
 #### KF-PRD-06: Menambah Produk Baru
+
 - **Deskripsi**: Sistem harus dapat menyimpan produk baru ke database
-- **Input**: 
+- **Input**:
   - Nama produk (wajib)
   - SKU (opsional, auto-generate jika kosong)
   - Deskripsi (opsional)
@@ -201,11 +330,13 @@ Sistem memiliki fungsi-fungsi utama sebagai berikut:
   - SKU harus unik
 
 #### KF-PRD-07: Mengubah Data Produk
+
 - **Deskripsi**: Sistem harus dapat mengubah data produk yang sudah ada
 - **Input**: ID produk, data baru
 - **Output**: Data produk yang sudah diupdate
 
 #### KF-PRD-08: Menghapus Produk
+
 - **Deskripsi**: Sistem harus dapat menghapus produk dari database
 - **Input**: ID produk
 - **Output**: Konfirmasi penghapusan
@@ -213,74 +344,86 @@ Sistem memiliki fungsi-fungsi utama sebagai berikut:
 
 ---
 
-### 3.4 Modul Stok (Stock)
+### 3.6 Modul Stok (Stock)
 
 #### KF-STK-01: Melihat Daftar Stok
+
 - **Deskripsi**: Sistem harus dapat menampilkan semua data stok yang tersimpan dalam database
 - **Input**: Tidak ada
 - **Output**: Daftar stok beserta informasi ID, nama produk, jumlah stok, minimum stok, dan tanggal update
 
 #### KF-STK-02: Melihat Detail Stok
+
 - **Deskripsi**: Sistem harus dapat menampilkan detail stok berdasarkan ID
 - **Input**: ID stok
 - **Output**: Detail stok lengkap
 
 #### KF-STK-03: Melihat Stok Berdasarkan Produk
+
 - **Deskripsi**: Sistem harus dapat menampilkan stok berdasarkan ID produk
 - **Input**: ID produk
 - **Output**: Data stok produk tersebut
 
 #### KF-STK-04: Melihat Produk dengan Stok Rendah
+
 - **Deskripsi**: Sistem harus dapat menampilkan daftar produk yang memiliki stok rendah (quantity ≤ minimumStock)
 - **Input**: Tidak ada
 - **Output**: Daftar produk dengan stok rendah beserta informasi stok
 
 #### KF-STK-05: Melihat Produk yang Habis
+
 - **Deskripsi**: Sistem harus dapat menampilkan daftar produk yang stoknya habis (quantity = 0)
 - **Input**: Tidak ada
 - **Output**: Daftar produk yang habis stok
 
 #### KF-STK-06: Mengubah Data Stok
+
 - **Deskripsi**: Sistem harus dapat mengubah data stok secara langsung
 - **Input**: ID stok, jumlah stok baru, minimum stok baru
 - **Output**: Data stok yang sudah diupdate
 - **Validasi**: Jumlah stok tidak boleh kurang dari 0
 
 #### KF-STK-07: Menambah Stok
+
 - **Deskripsi**: Sistem harus dapat menambah jumlah stok produk (restock)
 - **Input**: ID produk, jumlah yang ditambahkan
 - **Output**: Data stok yang sudah diupdate dengan tanggal restock
 - **Validasi**: Jumlah yang ditambahkan harus lebih dari 0
 
 #### KF-STK-08: Mengurangi Stok
+
 - **Deskripsi**: Sistem harus dapat mengurangi jumlah stok produk
 - **Input**: ID produk, jumlah yang dikurangi
 - **Output**: Data stok yang sudah diupdate
-- **Validasi**: 
+- **Validasi**:
   - Jumlah yang dikurangi harus lebih dari 0
   - Stok hasil pengurangan tidak boleh kurang dari 0
 
 ---
 
-### 3.5 Modul Dashboard
+### 3.7 Modul Dashboard
 
 #### KF-DSH-01: Menampilkan Statistik Ringkasan
+
 - **Deskripsi**: Sistem harus dapat menampilkan statistik ringkasan pada halaman dashboard
-- **Output**: 
+- **Output**:
   - Total jumlah produk
   - Total jumlah kategori
   - Total jumlah supplier
   - Jumlah item dengan stok rendah
 
 #### KF-DSH-02: Menampilkan Alert Stok Rendah
+
 - **Deskripsi**: Sistem harus dapat menampilkan tabel produk dengan stok rendah pada dashboard
 - **Output**: Tabel berisi nama produk, stok saat ini, dan minimum stok
 
 #### KF-DSH-03: Menampilkan Alert Stok Habis
+
 - **Deskripsi**: Sistem harus dapat menampilkan tabel produk yang stoknya habis pada dashboard
 - **Output**: Tabel berisi nama produk, SKU, dan kategori
 
 #### KF-DSH-04: Menampilkan Produk Terbaru
+
 - **Deskripsi**: Sistem harus dapat menampilkan 10 produk terakhir yang ditambahkan
 - **Output**: Tabel produk terbaru dengan informasi lengkap
 
@@ -292,12 +435,22 @@ Sistem memiliki fungsi-fungsi utama sebagai berikut:
 
 **Deskripsi**: Alur penggunaan sistem inventori dari awal hingga pengelolaan stok barang secara lengkap.
 
-**Aktor**: Admin/Staff Inventori
+**Aktor**: Admin, Staff
+
+**Pra-kondisi**: Sistem sudah memiliki minimal satu akun Admin yang aktif
 
 **Alur Utama**:
 
-1. **Persiapan Data Master**
-   - Pengguna membuka aplikasi Sistem Manajemen Inventori
+0. **Login ke Sistem**
+   - Pengguna membuka halaman login aplikasi
+   - Pengguna memasukkan username dan password
+   - Sistem memvalidasi kredensial pengguna
+   - Jika valid dan akun aktif, sistem mengarahkan ke dashboard sesuai role
+   - Admin diarahkan ke dashboard Admin dengan akses penuh
+   - Staff diarahkan ke dashboard Staff dengan akses terbatas
+
+1. **Persiapan Data Master** (Admin)
+   - Admin membuka aplikasi Sistem Manajemen Inventori
    - Sistem menampilkan halaman Dashboard dengan statistik awal (masih kosong)
    - Pengguna membuka halaman Kategori untuk mempersiapkan kategori produk
    - Pengguna menekan tombol "Tambah Kategori" dan mengisi form (nama: "Elektronik", deskripsi: "Perangkat elektronik")
@@ -377,18 +530,74 @@ Sistem memiliki fungsi-fungsi utama sebagai berikut:
 
 **Alur Alternatif**:
 
+- **Jika login gagal**: Sistem menampilkan pesan error "Username atau password salah" atau "Akun tidak aktif"
 - **Jika validasi gagal saat input data**: Sistem menampilkan pesan error yang spesifik (misalnya: "Nama produk tidak boleh kosong", "Format email tidak valid", "Harga harus lebih dari 0")
 - **Jika pengurangan stok melebihi jumlah tersedia**: Sistem menampilkan pesan error "Stok tidak mencukupi" dan membatalkan operasi
 - **Jika nama kategori atau SKU sudah digunakan**: Sistem menampilkan pesan "Nama kategori sudah ada" atau "SKU sudah digunakan"
 - **Jika menghapus kategori/supplier yang memiliki produk**: Sistem menampilkan dialog konfirmasi dengan peringatan bahwa semua produk terkait akan ikut terhapus
 - **Jika tidak ada data**: Sistem menampilkan pesan informatif "Tidak ada data" untuk setiap modul yang kosong
+- **Jika Staff mencoba akses halaman Admin**: Sistem menampilkan pesan "Akses ditolak" dan mengarahkan ke halaman yang sesuai
 
 **Hasil Akhir**:
+
+- Pengguna terautentikasi dan memiliki akses sesuai role
 - Database terisi dengan data master (kategori, supplier) yang terorganisir
 - Semua produk tercatat dengan informasi lengkap dan relasi yang benar
 - Stok barang termonitor dengan baik melalui dashboard
 - Sistem memberikan alert otomatis untuk stok rendah dan habis
 - Pengguna dapat mengelola inventori secara efisien dan real-time
+
+---
+
+### 4.2 Skenario Manajemen Pengguna (Khusus Admin)
+
+**Deskripsi**: Alur pengelolaan pengguna oleh Administrator
+
+**Aktor**: Admin
+
+**Pra-kondisi**: Admin sudah login ke sistem
+
+**Alur Utama**:
+
+1. **Melihat Daftar Pengguna**
+   - Admin membuka halaman Manajemen Pengguna
+   - Sistem menampilkan daftar semua pengguna dengan informasi lengkap
+   - Admin dapat melihat statistik pengguna (total, aktif, non-aktif, per role)
+
+2. **Menambah Pengguna Baru**
+   - Admin menekan tombol "Tambah Pengguna"
+   - Sistem menampilkan form dengan field: username, password, nama lengkap, email, nomor telepon, role
+   - Admin mengisi data pengguna baru
+   - Sistem memvalidasi data dan menyimpan ke database
+   - Sistem menampilkan notifikasi sukses
+
+3. **Mengubah Data Pengguna**
+   - Admin menekan tombol "Edit" pada pengguna yang ingin diubah
+   - Sistem menampilkan form dengan data saat ini
+   - Admin mengubah data yang diperlukan
+   - Sistem memvalidasi dan menyimpan perubahan
+
+4. **Mengubah Status Pengguna**
+   - Admin menekan tombol toggle status pada pengguna
+   - Sistem mengubah status aktif/non-aktif pengguna
+   - Pengguna non-aktif tidak dapat login ke sistem
+
+5. **Reset Password**
+   - Admin menekan tombol "Reset Password" pada pengguna
+   - Sistem menggenerate password baru
+   - Sistem menampilkan password baru kepada Admin
+   - Admin menginformasikan password baru ke pengguna terkait
+
+6. **Menghapus Pengguna**
+   - Admin menekan tombol "Hapus" pada pengguna
+   - Sistem menampilkan konfirmasi penghapusan
+   - Jika dikonfirmasi, sistem menghapus pengguna dari database
+
+**Alur Alternatif**:
+
+- **Jika username sudah digunakan**: Sistem menampilkan pesan "Username sudah terdaftar"
+- **Jika email sudah digunakan**: Sistem menampilkan pesan "Email sudah terdaftar"
+- **Jika Admin mencoba menghapus diri sendiri**: Sistem menolak dan menampilkan pesan error
 
 ---
 
@@ -401,6 +610,8 @@ DFD Level 0 menggambarkan sistem secara keseluruhan sebagai satu proses tunggal 
 ```
                     +------------------------------------------+
                     |                                          |
+                    |   Kredensial Login                       |
+                    |   Data Pengguna                          |
                     |   Data Kategori                          |
                     |   Data Supplier                          |
                     |   Data Produk                            |
@@ -410,10 +621,12 @@ DFD Level 0 menggambarkan sistem secara keseluruhan sebagai satu proses tunggal 
                     v                                          |
         +---------------------------+                          |
         |                           |                          |
-        |   Admin/Staff Inventori   |                          |
+        |      Admin / Staff        |                          |
         |                           |                          |
         +---------------------------+                          |
                     |                                          |
+                    |   Hasil Autentikasi                      |
+                    |   Daftar Pengguna (Admin only)           |
                     |   Daftar Kategori                        |
                     |   Daftar Supplier                        |
                     |   Daftar Produk                          |
@@ -423,26 +636,35 @@ DFD Level 0 menggambarkan sistem secara keseluruhan sebagai satu proses tunggal 
                     |   Notifikasi Sukses/Error                |
                     |                                          |
                     +----------------------------------------->+
-                              
+
                     [SISTEM MANAJEMEN INVENTORI BARANG]
 ```
 
 **Komponen:**
 
 **Entitas Eksternal:**
-- **Admin/Staff Inventori**: Pengguna yang berinteraksi dengan sistem untuk mengelola inventori
+
+- **Admin**: Administrator dengan akses penuh ke semua fitur sistem
+- **Staff**: Staff inventori dengan akses terbatas
 
 **Proses:**
+
 - **Sistem Manajemen Inventori Barang**: Sistem utama yang mengelola seluruh proses inventori
 
-**Aliran Data Masuk (dari Admin ke Sistem):**
-- Data Kategori (tambah, ubah, hapus)
+**Aliran Data Masuk (dari Pengguna ke Sistem):**
+
+- Kredensial Login (username, password)
+- Data Pengguna (tambah, ubah, hapus) - Admin only
+- Data Kategori (tambah, ubah, hapus) - Admin only
 - Data Supplier (tambah, ubah, hapus)
 - Data Produk (tambah, ubah, hapus)
 - Data Stok (tambah, kurangi, update)
 - Request Pencarian/Filter
 
-**Aliran Data Keluar (dari Sistem ke Admin):**
+**Aliran Data Keluar (dari Sistem ke Pengguna):**
+
+- Hasil Autentikasi (data user, role)
+- Daftar Pengguna (Admin only)
 - Daftar Kategori
 - Daftar Supplier
 - Daftar Produk
@@ -513,23 +735,27 @@ DFD Level 1 menggambarkan pemecahan sistem menjadi proses-proses utama beserta d
 **Komponen:**
 
 **Entitas Eksternal:**
+
 - **Admin/Staff Inventori**: Pengguna sistem
 
 **Proses Utama:**
 
 **1.0 Kelola Kategori**
+
 - Input: Data kategori (nama, deskripsi) dari Admin
 - Proses: Validasi, simpan, update, atau hapus data kategori
 - Output: Daftar kategori ke Admin, data kategori ke D1
 - Data Store: D1 (Category)
 
 **2.0 Kelola Supplier**
+
 - Input: Data supplier (nama, alamat, telepon, email, deskripsi) dari Admin
 - Proses: Validasi, simpan, update, atau hapus data supplier
 - Output: Daftar supplier ke Admin, data supplier ke D2
 - Data Store: D2 (Supplier)
 
 **3.0 Kelola Produk**
+
 - Input: Data produk (nama, SKU, deskripsi, harga, kategori, supplier) dari Admin
 - Proses: Validasi, generate SKU, simpan, update, atau hapus data produk
 - Output: Daftar produk ke Admin, data produk ke D3
@@ -537,6 +763,7 @@ DFD Level 1 menggambarkan pemecahan sistem menjadi proses-proses utama beserta d
 - Referensi: Membaca data dari D1 (Category) dan D2 (Supplier)
 
 **4.0 Kelola Stok**
+
 - Input: Data stok (quantity, minimum stock, operasi tambah/kurangi) dari Admin
 - Proses: Validasi, update stok, catat tanggal restock
 - Output: Informasi stok ke Admin, data stok ke D4
@@ -544,8 +771,9 @@ DFD Level 1 menggambarkan pemecahan sistem menjadi proses-proses utama beserta d
 - Referensi: Membaca data dari D3 (Product)
 
 **5.0 Generate Dashboard**
+
 - Input: Request dari Admin untuk melihat dashboard
-- Proses: 
+- Proses:
   - Hitung statistik (total produk, kategori, supplier)
   - Deteksi low stock (quantity ≤ minimum stock)
   - Deteksi out of stock (quantity = 0)
@@ -555,12 +783,13 @@ DFD Level 1 menggambarkan pemecahan sistem menjadi proses-proses utama beserta d
 
 **Data Store:**
 
-| ID | Nama | Deskripsi |
-|----|------|-----------|
-| D1 | Category | Menyimpan data kategori produk |
-| D2 | Supplier | Menyimpan data supplier/pemasok |
-| D3 | Product | Menyimpan data produk dengan relasi ke kategori dan supplier |
-| D4 | Stock | Menyimpan data stok untuk setiap produk |
+| ID  | Nama     | Deskripsi                                                    |
+| --- | -------- | ------------------------------------------------------------ |
+| D1  | User     | Menyimpan data pengguna sistem                               |
+| D2  | Category | Menyimpan data kategori produk                               |
+| D3  | Supplier | Menyimpan data supplier/pemasok                              |
+| D4  | Product  | Menyimpan data produk dengan relasi ke kategori dan supplier |
+| D5  | Stock    | Menyimpan data stok untuk setiap produk                      |
 
 **Aliran Data Utama:**
 
@@ -597,39 +826,42 @@ DFD Level 1 menggambarkan pemecahan sistem menjadi proses-proses utama beserta d
 
 ### 6.1 Kebutuhan Performa
 
-| ID | Kebutuhan | Keterangan |
-|----|-----------|------------|
-| KNF-01 | Response time API maksimal 2 detik | Untuk operasi CRUD standar |
-| KNF-02 | Sistem dapat menangani minimal 100 request per menit | Kapasitas beban normal |
+| ID     | Kebutuhan                                            | Keterangan                 |
+| ------ | ---------------------------------------------------- | -------------------------- |
+| KNF-01 | Response time API maksimal 2 detik                   | Untuk operasi CRUD standar |
+| KNF-02 | Sistem dapat menangani minimal 100 request per menit | Kapasitas beban normal     |
 
 ### 6.2 Kebutuhan Keamanan
 
-| ID | Kebutuhan | Keterangan |
-|----|-----------|------------|
-| KNF-03 | CORS dikonfigurasi untuk keamanan | Hanya domain tertentu yang dapat mengakses API |
-| KNF-04 | Validasi input pada server | Mencegah data tidak valid masuk ke database |
+| ID     | Kebutuhan                         | Keterangan                                      |
+| ------ | --------------------------------- | ----------------------------------------------- |
+| KNF-03 | Autentikasi pengguna              | Login dengan username dan password              |
+| KNF-04 | Role-based access control         | Pembatasan akses berdasarkan role (Admin/Staff) |
+| KNF-05 | CORS dikonfigurasi untuk keamanan | Hanya domain tertentu yang dapat mengakses API  |
+| KNF-06 | Validasi input pada server        | Mencegah data tidak valid masuk ke database     |
+| KNF-07 | Password hashing                  | Password disimpan dalam bentuk hash             |
 
 ### 6.3 Kebutuhan Keandalan
 
-| ID | Kebutuhan | Keterangan |
-|----|-----------|------------|
-| KNF-05 | Transaksi database bersifat atomik | Menggunakan @Transactional |
-| KNF-06 | Validasi integritas data | Foreign key dan constraint di database |
+| ID     | Kebutuhan                          | Keterangan                             |
+| ------ | ---------------------------------- | -------------------------------------- |
+| KNF-08 | Transaksi database bersifat atomik | Menggunakan @Transactional             |
+| KNF-09 | Validasi integritas data           | Foreign key dan constraint di database |
 
 ### 6.4 Kebutuhan Usability
 
-| ID | Kebutuhan | Keterangan |
-|----|-----------|------------|
-| KNF-07 | Interface responsif | Dapat diakses dari berbagai ukuran layar |
-| KNF-08 | Notifikasi yang jelas | Pengguna mendapat feedback untuk setiap aksi |
-| KNF-09 | Status stok visual | Menggunakan badge berwarna untuk memudahkan identifikasi |
+| ID     | Kebutuhan             | Keterangan                                               |
+| ------ | --------------------- | -------------------------------------------------------- |
+| KNF-10 | Interface responsif   | Dapat diakses dari berbagai ukuran layar                 |
+| KNF-11 | Notifikasi yang jelas | Pengguna mendapat feedback untuk setiap aksi             |
+| KNF-12 | Status stok visual    | Menggunakan badge berwarna untuk memudahkan identifikasi |
 
 ### 6.5 Kebutuhan Portabilitas
 
-| ID | Kebutuhan | Keterangan |
-|----|-----------|------------|
-| KNF-10 | Cross-browser support | Mendukung Chrome, Firefox, Edge, Safari terbaru |
-| KNF-11 | Dapat di-deploy di berbagai OS | Windows, Linux, macOS |
+| ID     | Kebutuhan                      | Keterangan                                      |
+| ------ | ------------------------------ | ----------------------------------------------- |
+| KNF-13 | Cross-browser support          | Mendukung Chrome, Firefox, Edge, Safari terbaru |
+| KNF-14 | Dapat di-deploy di berbagai OS | Windows, Linux, macOS                           |
 
 ---
 
@@ -637,52 +869,72 @@ DFD Level 1 menggambarkan pemecahan sistem menjadi proses-proses utama beserta d
 
 ### 7.1 Entity Relationship
 
+#### Tabel User
+
+| Field        | Tipe Data    | Keterangan                             |
+| ------------ | ------------ | -------------------------------------- |
+| id           | BIGINT       | Primary Key, Auto Increment            |
+| username     | VARCHAR(255) | Username, NOT NULL, UNIQUE             |
+| password     | VARCHAR(255) | Password (hashed), NOT NULL            |
+| full_name    | VARCHAR(255) | Nama lengkap, NOT NULL                 |
+| email        | VARCHAR(255) | Email (format valid), NOT NULL, UNIQUE |
+| phone_number | VARCHAR(20)  | Nomor telepon                          |
+| role         | ENUM         | Role pengguna (ADMIN, STAFF), NOT NULL |
+| is_active    | BOOLEAN      | Status aktif, NOT NULL, default TRUE   |
+| created_at   | TIMESTAMP    | Tanggal dibuat                         |
+| updated_at   | TIMESTAMP    | Tanggal diupdate                       |
+
 #### Tabel Category
-| Field | Tipe Data | Keterangan |
-|-------|-----------|------------|
-| id | BIGINT | Primary Key, Auto Increment |
-| name | VARCHAR(255) | Nama kategori, NOT NULL, UNIQUE |
-| description | VARCHAR(500) | Deskripsi kategori |
-| created_at | TIMESTAMP | Tanggal dibuat |
-| updated_at | TIMESTAMP | Tanggal diupdate |
+
+| Field       | Tipe Data    | Keterangan                      |
+| ----------- | ------------ | ------------------------------- |
+| id          | BIGINT       | Primary Key, Auto Increment     |
+| name        | VARCHAR(255) | Nama kategori, NOT NULL, UNIQUE |
+| description | VARCHAR(500) | Deskripsi kategori              |
+| created_at  | TIMESTAMP    | Tanggal dibuat                  |
+| updated_at  | TIMESTAMP    | Tanggal diupdate                |
 
 #### Tabel Supplier
-| Field | Tipe Data | Keterangan |
-|-------|-----------|------------|
-| id | BIGINT | Primary Key, Auto Increment |
-| name | VARCHAR(255) | Nama supplier, NOT NULL |
-| address | VARCHAR(255) | Alamat, NOT NULL |
-| phone_number | VARCHAR(50) | Nomor telepon |
-| email | VARCHAR(255) | Email (format valid) |
-| description | VARCHAR(500) | Deskripsi |
-| created_at | TIMESTAMP | Tanggal dibuat |
-| updated_at | TIMESTAMP | Tanggal diupdate |
+
+| Field        | Tipe Data    | Keterangan                  |
+| ------------ | ------------ | --------------------------- |
+| id           | BIGINT       | Primary Key, Auto Increment |
+| name         | VARCHAR(255) | Nama supplier, NOT NULL     |
+| address      | VARCHAR(255) | Alamat, NOT NULL            |
+| phone_number | VARCHAR(50)  | Nomor telepon               |
+| email        | VARCHAR(255) | Email (format valid)        |
+| description  | VARCHAR(500) | Deskripsi                   |
+| created_at   | TIMESTAMP    | Tanggal dibuat              |
+| updated_at   | TIMESTAMP    | Tanggal diupdate            |
 
 #### Tabel Product
-| Field | Tipe Data | Keterangan |
-|-------|-----------|------------|
-| id | BIGINT | Primary Key, Auto Increment |
-| name | VARCHAR(255) | Nama produk, NOT NULL |
-| sku | VARCHAR(50) | Stock Keeping Unit, UNIQUE, NOT NULL |
-| description | VARCHAR(1000) | Deskripsi produk |
-| price | DECIMAL(12,2) | Harga, NOT NULL, > 0 |
-| category_id | BIGINT | Foreign Key ke Category |
-| supplier_id | BIGINT | Foreign Key ke Supplier |
-| created_at | TIMESTAMP | Tanggal dibuat |
-| updated_at | TIMESTAMP | Tanggal diupdate |
+
+| Field       | Tipe Data     | Keterangan                           |
+| ----------- | ------------- | ------------------------------------ |
+| id          | BIGINT        | Primary Key, Auto Increment          |
+| name        | VARCHAR(255)  | Nama produk, NOT NULL                |
+| sku         | VARCHAR(50)   | Stock Keeping Unit, UNIQUE, NOT NULL |
+| description | VARCHAR(1000) | Deskripsi produk                     |
+| price       | DECIMAL(12,2) | Harga, NOT NULL, > 0                 |
+| category_id | BIGINT        | Foreign Key ke Category              |
+| supplier_id | BIGINT        | Foreign Key ke Supplier              |
+| created_at  | TIMESTAMP     | Tanggal dibuat                       |
+| updated_at  | TIMESTAMP     | Tanggal diupdate                     |
 
 #### Tabel Stock
-| Field | Tipe Data | Keterangan |
-|-------|-----------|------------|
-| id | BIGINT | Primary Key, Auto Increment |
-| quantity | INTEGER | Jumlah stok, NOT NULL, >= 0, default 0 |
-| minimum_stock | INTEGER | Minimum stok, >= 0, default 10 |
-| product_id | BIGINT | Foreign Key ke Product, UNIQUE |
-| last_restock_date | TIMESTAMP | Tanggal restock terakhir |
-| updated_at | TIMESTAMP | Tanggal diupdate |
+
+| Field             | Tipe Data | Keterangan                             |
+| ----------------- | --------- | -------------------------------------- |
+| id                | BIGINT    | Primary Key, Auto Increment            |
+| quantity          | INTEGER   | Jumlah stok, NOT NULL, >= 0, default 0 |
+| minimum_stock     | INTEGER   | Minimum stok, >= 0, default 10         |
+| product_id        | BIGINT    | Foreign Key ke Product, UNIQUE         |
+| last_restock_date | TIMESTAMP | Tanggal restock terakhir               |
+| updated_at        | TIMESTAMP | Tanggal diupdate                       |
 
 ### 7.2 Relasi Antar Tabel
 
+- **User**: Tabel standalone untuk autentikasi dan otorisasi
 - **Category (1) → (N) Product**: Satu kategori memiliki banyak produk
 - **Supplier (1) → (N) Product**: Satu supplier memasok banyak produk
 - **Product (1) → (1) Stock**: Satu produk memiliki satu record stok
@@ -693,48 +945,74 @@ DFD Level 1 menggambarkan pemecahan sistem menjadi proses-proses utama beserta d
 
 ### 8.1 API Endpoints
 
+#### Autentikasi
+
+| Method | Endpoint          | Deskripsi                                    |
+| ------ | ----------------- | -------------------------------------------- |
+| POST   | /api/auth/login   | Login pengguna                               |
+| GET    | /api/auth/profile | Mengambil profil pengguna yang sedang login  |
+| PUT    | /api/auth/profile | Mengupdate profil pengguna yang sedang login |
+
+#### Pengguna (Hanya Admin)
+
+| Method | Endpoint                       | Deskripsi                           |
+| ------ | ------------------------------ | ----------------------------------- |
+| GET    | /api/users                     | Mengambil semua pengguna            |
+| GET    | /api/users/{id}                | Mengambil pengguna berdasarkan ID   |
+| GET    | /api/users/role/{role}         | Mengambil pengguna berdasarkan role |
+| GET    | /api/users/stats               | Mengambil statistik pengguna        |
+| POST   | /api/users                     | Membuat pengguna baru               |
+| PUT    | /api/users/{id}                | Mengupdate pengguna                 |
+| PATCH  | /api/users/{id}/status         | Toggle status aktif pengguna        |
+| PATCH  | /api/users/{id}/reset-password | Reset password pengguna             |
+| DELETE | /api/users/{id}                | Menghapus pengguna                  |
+
 #### Kategori
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | /api/categories | Mengambil semua kategori |
-| GET | /api/categories/{id} | Mengambil kategori berdasarkan ID |
-| POST | /api/categories | Membuat kategori baru |
-| PUT | /api/categories/{id} | Mengupdate kategori |
-| DELETE | /api/categories/{id} | Menghapus kategori |
+
+| Method | Endpoint             | Deskripsi                         |
+| ------ | -------------------- | --------------------------------- |
+| GET    | /api/categories      | Mengambil semua kategori          |
+| GET    | /api/categories/{id} | Mengambil kategori berdasarkan ID |
+| POST   | /api/categories      | Membuat kategori baru             |
+| PUT    | /api/categories/{id} | Mengupdate kategori               |
+| DELETE | /api/categories/{id} | Menghapus kategori                |
 
 #### Supplier
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | /api/suppliers | Mengambil semua supplier |
-| GET | /api/suppliers/{id} | Mengambil supplier berdasarkan ID |
-| GET | /api/suppliers/search?name={name} | Mencari supplier berdasarkan nama |
-| POST | /api/suppliers | Membuat supplier baru |
-| PUT | /api/suppliers/{id} | Mengupdate supplier |
-| DELETE | /api/suppliers/{id} | Menghapus supplier |
+
+| Method | Endpoint                          | Deskripsi                         |
+| ------ | --------------------------------- | --------------------------------- |
+| GET    | /api/suppliers                    | Mengambil semua supplier          |
+| GET    | /api/suppliers/{id}               | Mengambil supplier berdasarkan ID |
+| GET    | /api/suppliers/search?name={name} | Mencari supplier berdasarkan nama |
+| POST   | /api/suppliers                    | Membuat supplier baru             |
+| PUT    | /api/suppliers/{id}               | Mengupdate supplier               |
+| DELETE | /api/suppliers/{id}               | Menghapus supplier                |
 
 #### Produk
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | /api/products | Mengambil semua produk |
-| GET | /api/products/{id} | Mengambil produk berdasarkan ID |
-| GET | /api/products/search?name={name} | Mencari produk berdasarkan nama |
-| GET | /api/products/category/{categoryId} | Mengambil produk berdasarkan kategori |
-| GET | /api/products/supplier/{supplierId} | Mengambil produk berdasarkan supplier |
-| POST | /api/products | Membuat produk baru |
-| PUT | /api/products/{id} | Mengupdate produk |
-| DELETE | /api/products/{id} | Menghapus produk |
+
+| Method | Endpoint                            | Deskripsi                             |
+| ------ | ----------------------------------- | ------------------------------------- |
+| GET    | /api/products                       | Mengambil semua produk                |
+| GET    | /api/products/{id}                  | Mengambil produk berdasarkan ID       |
+| GET    | /api/products/search?name={name}    | Mencari produk berdasarkan nama       |
+| GET    | /api/products/category/{categoryId} | Mengambil produk berdasarkan kategori |
+| GET    | /api/products/supplier/{supplierId} | Mengambil produk berdasarkan supplier |
+| POST   | /api/products                       | Membuat produk baru                   |
+| PUT    | /api/products/{id}                  | Mengupdate produk                     |
+| DELETE | /api/products/{id}                  | Menghapus produk                      |
 
 #### Stok
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | /api/stocks | Mengambil semua stok |
-| GET | /api/stocks/{id} | Mengambil stok berdasarkan ID |
-| GET | /api/stocks/product/{productId} | Mengambil stok berdasarkan produk |
-| GET | /api/stocks/low-stock | Mengambil produk dengan stok rendah |
-| GET | /api/stocks/out-of-stock | Mengambil produk yang habis |
-| PUT | /api/stocks/{id} | Mengupdate stok |
-| POST | /api/stocks/product/{productId}/add | Menambah stok |
-| POST | /api/stocks/product/{productId}/reduce | Mengurangi stok |
+
+| Method | Endpoint                               | Deskripsi                           |
+| ------ | -------------------------------------- | ----------------------------------- |
+| GET    | /api/stocks                            | Mengambil semua stok                |
+| GET    | /api/stocks/{id}                       | Mengambil stok berdasarkan ID       |
+| GET    | /api/stocks/product/{productId}        | Mengambil stok berdasarkan produk   |
+| GET    | /api/stocks/low-stock                  | Mengambil produk dengan stok rendah |
+| GET    | /api/stocks/out-of-stock               | Mengambil produk yang habis         |
+| PUT    | /api/stocks/{id}                       | Mengupdate stok                     |
+| POST   | /api/stocks/product/{productId}/add    | Menambah stok                       |
+| POST   | /api/stocks/product/{productId}/reduce | Mengurangi stok                     |
 
 ### 8.2 Format Response
 
@@ -746,16 +1024,16 @@ Semua response API menggunakan format JSON dengan struktur yang konsisten.
 
 ### 9.1 Teknologi yang Digunakan
 
-| Komponen | Teknologi | Versi |
-|----------|-----------|-------|
-| Backend Framework | Spring Boot | 4.0.2 |
-| Bahasa Pemrograman | Java | 25 |
-| Database | PostgreSQL | - |
-| ORM | Spring Data JPA | - |
-| Build Tool | Maven | - |
-| Frontend | HTML, CSS, JavaScript | - |
-| HTTP Client | Axios | - |
-| CSS Framework | Bootstrap | 5.x |
+| Komponen           | Teknologi             | Versi |
+| ------------------ | --------------------- | ----- |
+| Backend Framework  | Spring Boot           | 4.0.2 |
+| Bahasa Pemrograman | Java                  | 25    |
+| Database           | PostgreSQL            | -     |
+| ORM                | Spring Data JPA       | -     |
+| Build Tool         | Maven                 | -     |
+| Frontend           | HTML, CSS, JavaScript | -     |
+| HTTP Client        | Axios                 | -     |
+| CSS Framework      | Bootstrap             | 5.x   |
 
 ### 9.2 Konfigurasi Sistem
 
