@@ -1,19 +1,19 @@
-// Suppliers functionality
+// Admin Suppliers functionality - Full CRUD access
 let allSuppliers = [];
 let deleteSupplierId = null;
 
 document.addEventListener("DOMContentLoaded", function () {
   checkAuth(); // Verify user is logged in
+  checkAdminRole(); // Only admin can access full supplier management
   setUserDisplay(); // Set user display name
+  setupLogoutHandler(); // Setup logout functionality
   loadSuppliers();
   setupEventListeners();
 });
 
 function setupEventListeners() {
   // Search input
-  document
-    .getElementById("searchInput")
-    .addEventListener("input", filterSuppliers);
+  document.getElementById("searchInput").addEventListener("input", filterSuppliers);
 }
 
 async function loadSuppliers() {
@@ -30,8 +30,7 @@ function displaySuppliers(suppliers) {
   const tbody = document.getElementById("suppliersTableBody");
 
   if (suppliers.length === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="7" class="text-center text-muted">No suppliers found</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No suppliers found</td></tr>';
     return;
   }
 
@@ -68,12 +67,7 @@ function filterSuppliers() {
   }
 
   const filtered = allSuppliers.filter(
-    (supplier) =>
-      supplier.name.toLowerCase().includes(searchTerm) ||
-      (supplier.contactPerson &&
-        supplier.contactPerson.toLowerCase().includes(searchTerm)) ||
-      (supplier.email && supplier.email.toLowerCase().includes(searchTerm)) ||
-      (supplier.phone && supplier.phone.toLowerCase().includes(searchTerm)),
+    (supplier) => supplier.name.toLowerCase().includes(searchTerm) || (supplier.email && supplier.email.toLowerCase().includes(searchTerm)) || (supplier.phoneNumber && supplier.phoneNumber.toLowerCase().includes(searchTerm)),
   );
 
   displaySuppliers(filtered);
@@ -106,38 +100,28 @@ async function openEditModal(id) {
 }
 
 async function saveSupplier() {
-  const form = document.getElementById("supplierForm");
-
-  if (!form.checkValidity()) {
-    form.reportValidity();
-    return;
-  }
-
-  const supplierId = document.getElementById("supplierId").value;
+  const id = document.getElementById("supplierId").value;
   const supplierData = {
     name: document.getElementById("supplierName").value,
-    phoneNumber: document.getElementById("supplierPhoneNumber").value || null,
-    email: document.getElementById("supplierEmail").value || null,
-    address: document.getElementById("supplierAddress").value || null,
-    description: document.getElementById("supplierDescription").value || null,
+    phoneNumber: document.getElementById("supplierPhoneNumber").value,
+    email: document.getElementById("supplierEmail").value,
+    address: document.getElementById("supplierAddress").value,
+    description: document.getElementById("supplierDescription").value,
   };
 
   try {
-    if (supplierId) {
+    if (id) {
       // Update existing supplier
-      await axios.put(`${API_ENDPOINTS.suppliers}/${supplierId}`, supplierData);
-      showAlert("Supplier berhasil diperbarui!", "success");
+      await axios.put(`${API_ENDPOINTS.suppliers}/${id}`, supplierData);
+      showAlert("Supplier updated successfully!", "success");
     } else {
       // Create new supplier
       await axios.post(API_ENDPOINTS.suppliers, supplierData);
-      showAlert("Supplier berhasil ditambahkan!", "success");
+      showAlert("Supplier created successfully!", "success");
     }
 
     // Close modal and reload suppliers
-    const modal = bootstrap.Modal.getInstance(
-      document.getElementById("supplierModal"),
-    );
-    modal.hide();
+    bootstrap.Modal.getInstance(document.getElementById("supplierModal")).hide();
     loadSuppliers();
   } catch (error) {
     handleError(error);
@@ -145,13 +129,12 @@ async function saveSupplier() {
 }
 
 function openDeleteModal(id) {
+  deleteSupplierId = id;
   const supplier = allSuppliers.find((s) => s.id === id);
-  if (supplier) {
-    deleteSupplierId = id;
-    document.getElementById("deleteSupplierName").textContent = supplier.name;
-    const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
-    modal.show();
-  }
+  document.getElementById("deleteSupplierName").textContent = supplier ? supplier.name : "";
+
+  const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
+  modal.show();
 }
 
 async function confirmDelete() {
@@ -161,14 +144,11 @@ async function confirmDelete() {
     await axios.delete(`${API_ENDPOINTS.suppliers}/${deleteSupplierId}`);
     showAlert("Supplier deleted successfully!", "success");
 
-    // Close modal and reload suppliers
-    const modal = bootstrap.Modal.getInstance(
-      document.getElementById("deleteModal"),
-    );
-    modal.hide();
-    deleteSupplierId = null;
+    bootstrap.Modal.getInstance(document.getElementById("deleteModal")).hide();
     loadSuppliers();
   } catch (error) {
     handleError(error);
   }
+
+  deleteSupplierId = null;
 }
