@@ -11,7 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +23,9 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    
+    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
     
     @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
@@ -67,6 +73,18 @@ public class UserService {
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
+    public List<UserDto> getUsersByRoleString(String role) {
+        try {
+            User.UserRole userRole = User.UserRole.valueOf(role.toUpperCase());
+            return userRepository.findByRole(userRole).stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Role " + role + " tidak valid. Gunakan ADMIN atau STAFF");
+        }
+    }
+    
     @Transactional
     public UserDto createUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -79,6 +97,31 @@ public class UserService {
         
         // Hash password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        User savedUser = userRepository.save(user);
+        return convertToDto(savedUser);
+    }
+    
+    @Transactional
+    public UserDto createUserFromDto(UserDto userDto) {
+        // Validasi username unik
+        if (userRepository.existsByUsername(userDto.getUsername())) {
+            throw new RuntimeException("Username " + userDto.getUsername() + " sudah digunakan");
+        }
+        
+        // Validasi email unik
+        if (userRepository.existsByEmail(userDto.getEmail())) {
+            throw new RuntimeException("Email " + userDto.getEmail() + " sudah digunakan");
+        }
+        
+        User user = new User();
+        user.setUsername(userDto.getUsername());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setFullName(userDto.getFullName());
+        user.setEmail(userDto.getEmail());
+        user.setPhoneNumber(userDto.getPhoneNumber());
+        user.setRole(userDto.getRole() != null ? userDto.getRole() : User.UserRole.STAFF);
+        user.setIsActive(userDto.getIsActive() != null ? userDto.getIsActive() : true);
         
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
@@ -99,11 +142,109 @@ public class UserService {
     }
     
     @Transactional
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User dengan ID " + id + " tidak ditemukan");
+    public UserDto updateUserFromDto(Long id, UserDto userDto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
+        
+        // Validasi username unik (kecuali user saat ini)
+        if (!user.getUsername().equals(userDto.getUsername()) && 
+            userRepository.existsByUsername(userDto.getUsername())) {
+            throw new RuntimeException("Username " + userDto.getUsername() + " sudah digunakan");
         }
+        
+        // Validasi email unik (kecuali user saat ini)
+        if (!user.getEmail().equals(userDto.getEmail()) && 
+            userRepository.existsByEmail(userDto.getEmail())) {
+            throw new RuntimeException("Email " + userDto.getEmail() + " sudah digunakan");
+        }
+        
+        user.setUsername(userDto.getUsername());
+        user.setFullName(userDto.getFullName());
+        user.setEmail(userDto.getEmail());
+        user.setPhoneNumber(userDto.getPhoneNumber());
+        
+        if (userDto.getRole() != null) {
+            user.setRole(userDto.getRole());
+        }
+        
+        if (userDto.getIsActive() != null) {
+            user.setIsActive(userDto.getIsActive());
+        }
+        
+        // Update password jika diisi
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
+        
+        User updatedUser = userRepository.save(user);
+        return convertToDto(updatedUser);
+    }
+    
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
+        
+        // Cek apakah ini admin terakhir
+        if (user.getRole() == User.UserRole.ADMIN) {
+            long adminCount = userRepository.findByRole(User.UserRole.ADMIN).size();
+            if (adminCount <= 1) {
+                throw new RuntimeException("Tidak dapat menghapus admin terakhir. Sistem harus memiliki minimal 1 admin.");
+            }
+        }
+        
         userRepository.deleteById(id);
+    }
+    
+    @Transactional
+    public UserDto toggleUserStatus(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
+        
+        user.setIsActive(!user.getIsActive());
+        User updatedUser = userRepository.save(user);
+        return convertToDto(updatedUser);
+    }
+    
+    @Transactional
+    public String resetPassword(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
+        
+        // Generate random password
+        String newPassword = generateRandomPassword(10);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        
+        return newPassword;
+    }
+    
+    @Transactional(readOnly = true)
+    public Map<String, Object> getUserStats() {
+        Map<String, Object> stats = new HashMap<>();
+        
+        List<User> allUsers = userRepository.findAll();
+        long totalUsers = allUsers.size();
+        long adminCount = allUsers.stream().filter(u -> u.getRole() == User.UserRole.ADMIN).count();
+        long staffCount = allUsers.stream().filter(u -> u.getRole() == User.UserRole.STAFF).count();
+        long activeUsers = allUsers.stream().filter(User::getIsActive).count();
+        long inactiveUsers = totalUsers - activeUsers;
+        
+        stats.put("totalUsers", totalUsers);
+        stats.put("adminCount", adminCount);
+        stats.put("staffCount", staffCount);
+        stats.put("activeUsers", activeUsers);
+        stats.put("inactiveUsers", inactiveUsers);
+        
+        return stats;
+    }
+    
+    private String generateRandomPassword(int length) {
+        StringBuilder password = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            password.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
+        }
+        return password.toString();
     }
     
     @Transactional

@@ -1,6 +1,7 @@
 package com.example.inventoryexample.dto;
 
 import com.example.inventoryexample.entity.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,9 @@ public class UserDto {
     
     @NotBlank(message = "Username tidak boleh kosong")
     private String username;
+    
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
     
     private String fullName;
     
