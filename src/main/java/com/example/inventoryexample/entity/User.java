@@ -36,6 +36,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
     
+    @Column(length = 20)
+    private String phoneNumber;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;

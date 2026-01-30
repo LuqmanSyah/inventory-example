@@ -1,6 +1,5 @@
 package com.example.inventoryexample.dto;
 
-import com.example.inventoryexample.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,21 +9,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class ProfileUpdateRequest {
     
-    private Long id;
-    
-    @NotBlank(message = "Username tidak boleh kosong")
-    private String username;
-    
+    @NotBlank(message = "Nama lengkap tidak boleh kosong")
     private String fullName;
     
     @Email(message = "Format email tidak valid")
+    @NotBlank(message = "Email tidak boleh kosong")
     private String email;
     
     private String phoneNumber;
-    
-    private User.UserRole role;
-    
-    private Boolean isActive;
 }

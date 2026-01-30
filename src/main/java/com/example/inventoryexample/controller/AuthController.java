@@ -2,6 +2,7 @@ package com.example.inventoryexample.controller;
 
 import com.example.inventoryexample.dto.LoginRequest;
 import com.example.inventoryexample.dto.LoginResponse;
+import com.example.inventoryexample.dto.ProfileUpdateRequest;
 import com.example.inventoryexample.dto.UserDto;
 import com.example.inventoryexample.entity.User;
 import com.example.inventoryexample.service.UserService;
@@ -55,5 +56,17 @@ public class AuthController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getCurrentUserProfile(@RequestParam Long userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
+    }
+    
+    @PutMapping("/profile")
+    public ResponseEntity<UserDto> updateCurrentUserProfile(
+            @RequestParam Long userId,
+            @Valid @RequestBody ProfileUpdateRequest profileRequest) {
+        return ResponseEntity.ok(userService.updateUserProfile(userId, profileRequest));
     }
 }

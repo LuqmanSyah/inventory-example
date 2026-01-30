@@ -45,11 +45,38 @@ function getUserRole() {
   return localStorage.getItem("inventori_user_role");
 }
 
-// Set user display name
-function setUserDisplay() {
+// Set user display name from database
+async function setUserDisplay() {
   const user = checkAuth();
-  if (user && document.getElementById("userNameDisplay")) {
-    document.getElementById("userNameDisplay").textContent = user.fullName || user.username || "User";
+  const userId = localStorage.getItem("inventori_user_id");
+
+  if (!userId) {
+    // Fallback to localStorage if no userId
+    if (user && document.getElementById("userNameDisplay")) {
+      document.getElementById("userNameDisplay").textContent = user.fullName || user.username || "User";
+    }
+    return;
+  }
+
+  try {
+    // Fetch user data from database
+    // Try the new profile endpoint first, fallback to user endpoint
+    let response;
+    try {
+      response = await axios.get(`${API_ENDPOINTS.auth}/profile?userId=${userId}`);
+    } catch (err) {
+      response = await axios.get(`${API_ENDPOINTS.auth}/user/${userId}`);
+    }
+
+    if (response.data && document.getElementById("userNameDisplay")) {
+      document.getElementById("userNameDisplay").textContent = response.data.fullName || response.data.username || "User";
+    }
+  } catch (error) {
+    console.error("Error fetching user display:", error);
+    // Fallback to localStorage if API fails
+    if (user && document.getElementById("userNameDisplay")) {
+      document.getElementById("userNameDisplay").textContent = user.fullName || user.username || "User";
+    }
   }
 }
 

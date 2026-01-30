@@ -2,10 +2,12 @@ package com.example.inventoryexample.service;
 
 import com.example.inventoryexample.dto.LoginRequest;
 import com.example.inventoryexample.dto.LoginResponse;
+import com.example.inventoryexample.dto.ProfileUpdateRequest;
 import com.example.inventoryexample.dto.UserDto;
 import com.example.inventoryexample.entity.User;
 import com.example.inventoryexample.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class UserService {
     
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     
     @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
@@ -27,8 +30,8 @@ public class UserService {
             throw new RuntimeException("Akun Anda tidak aktif. Hubungi administrator");
         }
         
-        // Simple password check (dalam production, gunakan BCrypt)
-        if (!user.getPassword().equals(loginRequest.getPassword())) {
+        // BCrypt password verification
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("Username atau password salah");
         }
         
@@ -74,6 +77,9 @@ public class UserService {
             throw new RuntimeException("Email sudah terdaftar");
         }
         
+        // Hash password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
     }
@@ -100,12 +106,26 @@ public class UserService {
         userRepository.deleteById(id);
     }
     
+    @Transactional
+    public UserDto updateUserProfile(Long id, ProfileUpdateRequest profileRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
+        
+        user.setFullName(profileRequest.getFullName());
+        user.setEmail(profileRequest.getEmail());
+        user.setPhoneNumber(profileRequest.getPhoneNumber());
+        
+        User updatedUser = userRepository.save(user);
+        return convertToDto(updatedUser);
+    }
+    
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setFullName(user.getFullName());
         dto.setEmail(user.getEmail());
+        dto.setPhoneNumber(user.getPhoneNumber());
         dto.setRole(user.getRole());
         dto.setIsActive(user.getIsActive());
         return dto;

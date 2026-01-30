@@ -6,6 +6,7 @@ let profileData = {
   phoneNumber: "",
   photoUrl: null,
 };
+let originalProfileData = {}; // Store original data for comparison
 
 document.addEventListener("DOMContentLoaded", function () {
   checkAuth(); // Verify user is logged in
@@ -49,6 +50,68 @@ function setupEventListeners() {
 
   // Save button
   document.getElementById("saveBtn").addEventListener("click", saveProfile);
+
+  // Real-time validation
+  document.getElementById("email").addEventListener("blur", validateEmail);
+  document.getElementById("phoneNumber").addEventListener("blur", validatePhoneNumber);
+
+  // Track changes
+  document.getElementById("fullName").addEventListener("input", checkForChanges);
+  document.getElementById("email").addEventListener("input", checkForChanges);
+  document.getElementById("phoneNumber").addEventListener("input", checkForChanges);
+}
+
+function validateEmail() {
+  const emailInput = document.getElementById("email");
+  const email = emailInput.value.trim();
+
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      emailInput.classList.add("is-invalid");
+      emailInput.classList.remove("is-valid");
+    } else {
+      emailInput.classList.add("is-valid");
+      emailInput.classList.remove("is-invalid");
+    }
+  } else {
+    emailInput.classList.remove("is-invalid", "is-valid");
+  }
+}
+
+function validatePhoneNumber() {
+  const phoneInput = document.getElementById("phoneNumber");
+  const phone = phoneInput.value.trim();
+
+  if (phone) {
+    const phoneRegex = /^(\+62|62|0)[0-9]{9,12}$/;
+    if (!phoneRegex.test(phone.replace(/[\s-]/g, ""))) {
+      phoneInput.classList.add("is-invalid");
+      phoneInput.classList.remove("is-valid");
+    } else {
+      phoneInput.classList.add("is-valid");
+      phoneInput.classList.remove("is-invalid");
+    }
+  } else {
+    phoneInput.classList.remove("is-invalid", "is-valid");
+  }
+}
+
+function checkForChanges() {
+  const fullName = document.getElementById("fullName").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phoneNumber = document.getElementById("phoneNumber").value.trim();
+
+  const hasChanges = fullName !== originalProfileData.fullName || email !== originalProfileData.email || phoneNumber !== (originalProfileData.phoneNumber || "");
+
+  const saveBtn = document.getElementById("saveBtn");
+  if (hasChanges) {
+    saveBtn.classList.add("btn-warning");
+    saveBtn.classList.remove("btn-primary");
+  } else {
+    saveBtn.classList.add("btn-primary");
+    saveBtn.classList.remove("btn-warning");
+  }
 }
 
 function handlePhotoSelect() {
@@ -90,59 +153,80 @@ function handlePhotoSelect() {
 
 async function loadProfileData() {
   try {
-    const user = JSON.parse(localStorage.getItem("inventori_user") || "{}");
+    const userId = localStorage.getItem("inventori_user_id");
 
-    // Set username (read-only)
-    document.getElementById("username").value = user.username || "";
-    document.getElementById("profileName").textContent = user.fullName || user.username || "Admin";
+    if (!userId) {
+      showAlert("User ID tidak ditemukan. Silakan login ulang.", "danger");
+      return;
+    }
 
-    // Try to fetch full profile data from backend
+    // Fetch full profile data from database
+    // Try the new profile endpoint first, fallback to user endpoint
+    let response;
     try {
-      const response = await axios.get(`${API_ENDPOINTS.auth}/profile`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      response = await axios.get(`${API_ENDPOINTS.auth}/profile?userId=${userId}`);
+    } catch (err) {
+      // Fallback to existing user endpoint
+      console.log("Profile endpoint not available, using user endpoint");
+      response = await axios.get(`${API_ENDPOINTS.auth}/user/${userId}`);
+    }
 
-      if (response.data) {
-        profileData = {
-          fullName: response.data.fullName || "",
-          email: response.data.email || "",
-          phoneNumber: response.data.phoneNumber || "",
-          photoUrl: response.data.photoUrl || null,
-        };
+    if (response.data) {
+      profileData = {
+        fullName: response.data.fullName || "",
+        email: response.data.email || "",
+        phoneNumber: response.data.phoneNumber || "",
+        photoUrl: response.data.photoUrl || null,
+      };
 
-        // Load existing profile data
-        document.getElementById("fullName").value = profileData.fullName;
-        document.getElementById("email").value = profileData.email;
-        document.getElementById("phoneNumber").value = profileData.phoneNumber;
+      // Store original data for comparison
+      originalProfileData = { ...profileData };
 
-        if (profileData.photoUrl) {
-          const profilePhoto = document.getElementById("profilePhoto");
-          const photoPlaceholder = document.getElementById("photoPlaceholder");
+      // Set username (read-only)
+      document.getElementById("username").value = response.data.username || "";
+      document.getElementById("profileName").textContent = response.data.fullName || response.data.username || "Admin";
 
-          profilePhoto.src = profileData.photoUrl;
-          profilePhoto.style.display = "block";
-          photoPlaceholder.style.display = "none";
-        }
+      // Load existing profile data
+      document.getElementById("fullName").value = profileData.fullName;
+      document.getElementById("email").value = profileData.email;
+      document.getElementById("phoneNumber").value = profileData.phoneNumber || "";
+
+      if (profileData.photoUrl) {
+        const profilePhoto = document.getElementById("profilePhoto");
+        const photoPlaceholder = document.getElementById("photoPlaceholder");
+
+        profilePhoto.src = profileData.photoUrl;
+        profilePhoto.style.display = "block";
+        photoPlaceholder.style.display = "none";
       }
-    } catch (error) {
-      // If endpoint doesn't exist yet, just use localStorage data
-      console.log("Profile endpoint not available yet");
-      document.getElementById("fullName").value = user.fullName || "";
-      document.getElementById("email").value = user.email || "";
     }
   } catch (error) {
     console.error("Error loading profile data:", error);
-    showAlert("Gagal memuat data profil", "danger");
+    showAlert("Gagal memuat data profil dari database: " + (error.response?.data?.message || error.message), "danger");
   }
 }
 
-function displayUserName() {
-  const user = JSON.parse(localStorage.getItem("inventori_user") || "{}");
-  const userNameDisplay = document.getElementById("userNameDisplay");
-  if (userNameDisplay) {
-    userNameDisplay.textContent = user.fullName || user.username || "Admin";
+async function displayUserName() {
+  const userId = localStorage.getItem("inventori_user_id");
+
+  if (!userId) return;
+
+  try {
+    // Try the new profile endpoint first, fallback to user endpoint
+    let response;
+    try {
+      response = await axios.get(`${API_ENDPOINTS.auth}/profile?userId=${userId}`);
+    } catch (err) {
+      response = await axios.get(`${API_ENDPOINTS.auth}/user/${userId}`);
+    }
+
+    const userNameDisplay = document.getElementById("userNameDisplay");
+
+    if (userNameDisplay && response.data) {
+      userNameDisplay.textContent = response.data.fullName || response.data.username || "Admin";
+    }
+  } catch (error) {
+    console.error("Error fetching user name:", error);
   }
 }
 
@@ -154,51 +238,107 @@ async function saveProfile() {
 
   if (!fullName) {
     showAlert("Nama lengkap harus diisi", "danger");
+    document.getElementById("fullName").focus();
+    return;
+  }
+
+  if (!email) {
+    showAlert("Email harus diisi", "danger");
+    document.getElementById("email").focus();
+    return;
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showAlert("Format email tidak valid", "danger");
+    document.getElementById("email").focus();
+    return;
+  }
+
+  // Validate phone number if provided (optional)
+  if (phoneNumber) {
+    const phoneRegex = /^(\+62|62|0)[0-9]{9,12}$/;
+    if (!phoneRegex.test(phoneNumber.replace(/[\s-]/g, ""))) {
+      showAlert("Format nomor telepon tidak valid. Gunakan format: 08xx atau +628xx", "danger");
+      document.getElementById("phoneNumber").focus();
+      return;
+    }
+  }
+
+  // Check if there are any changes
+  const hasChanges = fullName !== originalProfileData.fullName || email !== originalProfileData.email || phoneNumber !== (originalProfileData.phoneNumber || "");
+
+  if (!hasChanges) {
+    showAlert("Tidak ada perubahan data", "info");
     return;
   }
 
   // Show loading
   const saveBtn = document.getElementById("saveBtn");
   const spinner = document.getElementById("spinner");
+  const saveBtnText = saveBtn.querySelector("span");
+  const originalBtnText = saveBtnText.textContent;
+
   saveBtn.disabled = true;
   spinner.style.display = "inline-block";
+  saveBtnText.textContent = " Menyimpan...";
 
   try {
+    const userId = localStorage.getItem("inventori_user_id");
+
+    if (!userId) {
+      showAlert("User ID tidak ditemukan. Silakan login ulang.", "danger");
+      saveBtn.disabled = false;
+      spinner.style.display = "none";
+      saveBtnText.textContent = originalBtnText;
+      return;
+    }
+
     // Update profile data
     const updateData = {
+      fullName: fullName,
+      email: email,
+      phoneNumber: phoneNumber || null,
+    };
+
+    // Save to backend database
+    // Try the new profile endpoint first, fallback to user endpoint
+    try {
+      await axios.put(`${API_ENDPOINTS.auth}/profile?userId=${userId}`, updateData);
+    } catch (err) {
+      // Fallback to existing user endpoint
+      await axios.put(`${API_ENDPOINTS.auth}/user/${userId}`, updateData);
+    }
+
+    // Update original data after successful save
+    originalProfileData = {
       fullName: fullName,
       email: email,
       phoneNumber: phoneNumber,
     };
 
-    // Try to save to backend
-    try {
-      await axios.put(`${API_ENDPOINTS.auth}/profile`, updateData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-    } catch (error) {
-      console.log("Profile update endpoint not available yet");
-    }
-
-    // Update local storage
-    const user = JSON.parse(localStorage.getItem("inventori_user") || "{}");
-    user.fullName = fullName;
-    user.email = email;
-    localStorage.setItem("inventori_user", JSON.stringify(user));
-
-    // Update display
+    // Update display from fresh data
     document.getElementById("profileName").textContent = fullName;
-    displayUserName();
+    await displayUserName();
 
-    showAlert("Profil berhasil disimpan!", "success");
+    // Reset button style
+    saveBtn.classList.add("btn-primary");
+    saveBtn.classList.remove("btn-warning");
+
+    // Remove validation classes
+    document.getElementById("email").classList.remove("is-invalid", "is-valid");
+    document.getElementById("phoneNumber").classList.remove("is-invalid", "is-valid");
+
+    showAlert("✓ Profil berhasil diperbarui!", "success");
   } catch (error) {
     console.error("Error saving profile:", error);
-    showAlert("Gagal menyimpan profil", "danger");
+    const errorMessage = error.response?.data?.message || error.message || "Terjadi kesalahan";
+    showAlert("Gagal menyimpan profil: " + errorMessage, "danger");
   } finally {
     // Hide loading
     saveBtn.disabled = false;
     spinner.style.display = "none";
+    saveBtnText.textContent = originalBtnText;
   }
 }
