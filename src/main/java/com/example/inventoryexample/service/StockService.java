@@ -19,6 +19,12 @@ public class StockService {
     @Transactional(readOnly = true)
     public List<StockDto> getAllStocks() {
         return stockRepository.findAll().stream()
+                .sorted((s1, s2) -> {
+                    if (s1.getUpdatedAt() == null && s2.getUpdatedAt() == null) return 0;
+                    if (s1.getUpdatedAt() == null) return 1;
+                    if (s2.getUpdatedAt() == null) return -1;
+                    return s2.getUpdatedAt().compareTo(s1.getUpdatedAt());
+                })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }

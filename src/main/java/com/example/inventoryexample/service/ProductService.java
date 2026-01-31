@@ -26,6 +26,12 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductDto> getAllProducts() {
         return productRepository.findAll().stream()
+                .sorted((p1, p2) -> {
+                    if (p1.getUpdatedAt() == null && p2.getUpdatedAt() == null) return 0;
+                    if (p1.getUpdatedAt() == null) return 1;
+                    if (p2.getUpdatedAt() == null) return -1;
+                    return p2.getUpdatedAt().compareTo(p1.getUpdatedAt());
+                })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }

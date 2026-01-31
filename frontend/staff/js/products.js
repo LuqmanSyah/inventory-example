@@ -71,12 +71,12 @@ function displayProducts(products) {
 
   // Staff view - no action buttons
   tbody.innerHTML = products
-    .map((product) => {
+    .map((product, index) => {
       const stockBadge = getStockBadge(product.stockQuantity, product.minimumStock);
 
       return `
             <tr>
-                <td>${product.id}</td>
+                <td>${index + 1}</td>
                 <td><strong>${product.name}</strong></td>
                 <td><code>${product.sku || "-"}</code></td>
                 <td>${product.description || "-"}</td>

@@ -54,12 +54,12 @@ function displayAllStocks(stocks) {
   }
 
   tbody.innerHTML = stocks
-    .map((stock) => {
+    .map((stock, index) => {
       const statusBadge = getStockStatusBadge(stock.quantity, stock.minimumStock);
 
       return `
             <tr>
-                <td>${stock.productId}</td>
+                <td>${index + 1}</td>
                 <td><strong>${stock.productName}</strong></td>
                 <td><code>${stock.productSku || "-"}</code></td>
                 <td><span class="badge bg-info">${stock.categoryName || "-"}</span></td>
@@ -213,10 +213,14 @@ async function openAdjustModal(productId, type) {
 
 async function saveStockUpdate() {
   const stockId = document.getElementById("stockId").value;
+  const productId = document.getElementById("stockProductId").value;
+  const quantity = parseInt(document.getElementById("currentQuantity").value);
   const minimumStock = parseInt(document.getElementById("minimumStock").value);
 
   try {
     await axios.put(`${API_ENDPOINTS.stocks}/${stockId}`, {
+      productId: parseInt(productId),
+      quantity: quantity,
       minimumStock: minimumStock,
     });
 

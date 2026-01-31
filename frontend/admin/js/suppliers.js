@@ -36,9 +36,9 @@ function displaySuppliers(suppliers) {
 
   tbody.innerHTML = suppliers
     .map(
-      (supplier) => `
+      (supplier, index) => `
         <tr>
-            <td>${supplier.id}</td>
+            <td>${index + 1}</td>
             <td><strong>${supplier.name}</strong></td>
             <td>${supplier.phoneNumber || "-"}</td>
             <td>${supplier.email || "-"}</td>

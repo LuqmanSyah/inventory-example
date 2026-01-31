@@ -19,6 +19,12 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll().stream()
+                .sorted((c1, c2) -> {
+                    if (c1.getUpdatedAt() == null && c2.getUpdatedAt() == null) return 0;
+                    if (c1.getUpdatedAt() == null) return 1;
+                    if (c2.getUpdatedAt() == null) return -1;
+                    return c2.getUpdatedAt().compareTo(c1.getUpdatedAt());
+                })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }

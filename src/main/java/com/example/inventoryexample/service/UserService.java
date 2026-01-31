@@ -62,6 +62,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
+                .sorted((u1, u2) -> {
+                    if (u1.getUpdatedAt() == null && u2.getUpdatedAt() == null) return 0;
+                    if (u1.getUpdatedAt() == null) return 1;
+                    if (u2.getUpdatedAt() == null) return -1;
+                    return u2.getUpdatedAt().compareTo(u1.getUpdatedAt());
+                })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }

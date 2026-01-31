@@ -54,12 +54,12 @@ function displayAllStocks(stocks) {
 
   // Staff can add/reduce stock but not update minimum stock
   tbody.innerHTML = stocks
-    .map((stock) => {
+    .map((stock, index) => {
       const statusBadge = getStockStatusBadge(stock.quantity, stock.minimumStock);
 
       return `
             <tr>
-                <td>${stock.productId}</td>
+                <td>${index + 1}</td>
                 <td><strong>${stock.productName}</strong></td>
                 <td><code>${stock.productSku || "-"}</code></td>
                 <td><span class="badge bg-info">${stock.categoryName || "-"}</span></td>
