@@ -74,6 +74,7 @@ public class CategoryService {
         dto.setId(category.getId());
         dto.setName(category.getName());
         dto.setDescription(category.getDescription());
+        dto.setProductCount(category.getProducts() != null ? category.getProducts().size() : 0);
         return dto;
     }
 }

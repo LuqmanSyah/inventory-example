@@ -16,4 +16,6 @@ public class CategoryDto {
     private String name;
     
     private String description;
+    
+    private Integer productCount;
 }
