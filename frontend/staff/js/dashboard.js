@@ -2,6 +2,8 @@
 document.addEventListener("DOMContentLoaded", function () {
   checkAuth(); // Verify user is logged in
   checkStaffRole(); // Only staff can access
+  setUserDisplay(); // Set user display name
+  setupLogoutHandler(); // Setup logout functionality
   showWelcomeMessageIfFirstLogin(); // Show welcome message only on first login
   loadDashboardData();
 });
