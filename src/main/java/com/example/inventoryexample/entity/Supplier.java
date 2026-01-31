@@ -33,7 +33,9 @@ public class Supplier {
     @Column(name = "phone_number")
     private String phoneNumber;
     
+    @NotBlank(message = "Email tidak boleh kosong")
     @Email(message = "Format email tidak valid")
+    @Column(nullable = false)
     private String email;
     
     @Column(length = 500)

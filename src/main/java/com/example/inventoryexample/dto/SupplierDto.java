@@ -21,6 +21,7 @@ public class SupplierDto {
     
     private String phoneNumber;
     
+    @NotBlank(message = "Email tidak boleh kosong")
     @Email(message = "Format email tidak valid")
     private String email;
     
