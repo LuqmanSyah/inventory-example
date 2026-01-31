@@ -90,15 +90,9 @@ async function openEditModal(id) {
 
     document.getElementById("modalTitle").textContent = "Edit Supplier";
     document.getElementById("supplierId").value = supplier.id;
-<<<<<<< HEAD:frontend/js/suppliers.js
-    document.getElementById("supplierName").value = supplier.name;
-    document.getElementById("supplierEmail").value = supplier.email || "";
-    document.getElementById("supplierPhoneNumber").value = supplier.phoneNumber || "";
-=======
     document.getElementById("supplierName").value = supplier.name || "";
     document.getElementById("supplierPhoneNumber").value = supplier.phoneNumber || "";
     document.getElementById("supplierEmail").value = supplier.email || "";
->>>>>>> login:frontend/admin/js/suppliers.js
     document.getElementById("supplierAddress").value = supplier.address || "";
     document.getElementById("supplierDescription").value = supplier.description || "";
 
@@ -110,34 +104,20 @@ async function openEditModal(id) {
 }
 
 async function saveSupplier() {
-<<<<<<< HEAD:frontend/js/suppliers.js
-  console.log('saveSupplier called');
-  
   const form = document.getElementById("supplierForm");
-  console.log('Form found:', form);
 
   if (!form.checkValidity()) {
-    console.log('Form validation failed');
     form.reportValidity();
     return;
   }
 
-  const supplierId = document.getElementById("supplierId").value;
-  const supplierData = {
-    name: document.getElementById("supplierName").value,
-    address: document.getElementById("supplierAddress").value,
-    email: document.getElementById("supplierEmail").value || null,
-    phoneNumber: document.getElementById("supplierPhoneNumber").value || null,
-    description: document.getElementById("supplierDescription").value || null,
-=======
   const id = document.getElementById("supplierId").value;
   const supplierData = {
     name: document.getElementById("supplierName").value,
-    phoneNumber: document.getElementById("supplierPhoneNumber").value,
-    email: document.getElementById("supplierEmail").value,
     address: document.getElementById("supplierAddress").value,
-    description: document.getElementById("supplierDescription").value,
->>>>>>> login:frontend/admin/js/suppliers.js
+    phoneNumber: document.getElementById("supplierPhoneNumber").value || null,
+    email: document.getElementById("supplierEmail").value || null,
+    description: document.getElementById("supplierDescription").value || null,
   };
 
   console.log('Supplier data:', supplierData);
@@ -146,12 +126,7 @@ async function saveSupplier() {
   try {
     if (id) {
       // Update existing supplier
-<<<<<<< HEAD:frontend/js/suppliers.js
-      console.log('Updating supplier:', supplierId);
-      await axios.put(`${API_ENDPOINTS.suppliers}/${supplierId}`, supplierData);
-=======
       await axios.put(`${API_ENDPOINTS.suppliers}/${id}`, supplierData);
->>>>>>> login:frontend/admin/js/suppliers.js
       showAlert("Supplier updated successfully!", "success");
     } else {
       // Create new supplier
