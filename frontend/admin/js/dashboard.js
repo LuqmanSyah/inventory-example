@@ -102,8 +102,8 @@ function loadRecentProducts(products) {
     return;
   }
 
-  // Show last 10 products
-  const recentProducts = products.slice(-10).reverse();
+  // Show first 10 products (already sorted by createdAt desc from backend)
+  const recentProducts = products.slice(0, 10);
 
   tbody.innerHTML = recentProducts
     .map((product) => {

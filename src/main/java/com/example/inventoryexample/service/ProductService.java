@@ -27,10 +27,10 @@ public class ProductService {
     public List<ProductDto> getAllProducts() {
         return productRepository.findAll().stream()
                 .sorted((p1, p2) -> {
-                    if (p1.getUpdatedAt() == null && p2.getUpdatedAt() == null) return 0;
-                    if (p1.getUpdatedAt() == null) return 1;
-                    if (p2.getUpdatedAt() == null) return -1;
-                    return p2.getUpdatedAt().compareTo(p1.getUpdatedAt());
+                    if (p1.getCreatedAt() == null && p2.getCreatedAt() == null) return 0;
+                    if (p1.getCreatedAt() == null) return 1;
+                    if (p2.getCreatedAt() == null) return -1;
+                    return p2.getCreatedAt().compareTo(p1.getCreatedAt());
                 })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -136,6 +136,9 @@ public class ProductService {
             dto.setMinimumStock(product.getStock().getMinimumStock());
             dto.setIsLowStock(product.getStock().isLowStock());
         }
+        
+        dto.setCreatedAt(product.getCreatedAt());
+        dto.setUpdatedAt(product.getUpdatedAt());
         
         return dto;
     }

@@ -31,24 +31,28 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("Login form found, attaching event listener");
 
   // Toggle password visibility
-  togglePasswordBtn.addEventListener("click", function () {
-    const type = passwordInput.getAttribute("type");
-    if (type === "password") {
-      passwordInput.setAttribute("type", "text");
-      togglePasswordBtn.innerHTML = '<i class="bi bi-eye-slash"></i>';
-      togglePasswordBtn.title = "Sembunyikan password";
-    } else {
-      passwordInput.setAttribute("type", "password");
-      togglePasswordBtn.innerHTML = '<i class="bi bi-eye"></i>';
-      togglePasswordBtn.title = "Tampilkan password";
-    }
-  });
+  if (togglePasswordBtn) {
+    togglePasswordBtn.addEventListener("click", function () {
+      const type = passwordInput.getAttribute("type");
+      if (type === "password") {
+        passwordInput.setAttribute("type", "text");
+        togglePasswordBtn.innerHTML = '<i class="bi bi-eye-slash"></i>';
+        togglePasswordBtn.title = "Sembunyikan password";
+      } else {
+        passwordInput.setAttribute("type", "password");
+        togglePasswordBtn.innerHTML = '<i class="bi bi-eye"></i>';
+        togglePasswordBtn.title = "Tampilkan password";
+      }
+    });
+  }
 
   // Load saved username if remember me was checked
   const savedUsername = localStorage.getItem("inventori_remember_username");
   if (savedUsername) {
     usernameInput.value = savedUsername;
-    rememberMeCheckbox.checked = true;
+    if (rememberMeCheckbox) {
+      rememberMeCheckbox.checked = true;
+    }
   }
 
   // Handle login form submission
@@ -68,10 +72,10 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Save username if remember me is checked
-    if (rememberMeCheckbox.checked) {
+    // Save username if remember me is checked (optional feature)
+    if (rememberMeCheckbox && rememberMeCheckbox.checked) {
       localStorage.setItem("inventori_remember_username", username);
-    } else {
+    } else if (rememberMeCheckbox) {
       localStorage.removeItem("inventori_remember_username");
     }
 
