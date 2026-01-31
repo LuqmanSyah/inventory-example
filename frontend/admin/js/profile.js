@@ -1,10 +1,8 @@
 // Admin Profile functionality
-let selectedPhotoFile = null;
 let profileData = {
   fullName: "",
   email: "",
-  phoneNumber: "",
-  photoUrl: null,
+  phoneNumber: ""
 };
 let originalProfileData = {}; // Store original data for comparison
 
@@ -19,35 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function setupEventListeners() {
-  // Photo upload area
-  const photoUploadArea = document.getElementById("photoUploadArea");
-  const photoInput = document.getElementById("photoInput");
-
-  photoUploadArea.addEventListener("click", () => photoInput.click());
-
-  photoInput.addEventListener("change", handlePhotoSelect);
-
-  // Drag and drop
-  photoUploadArea.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    photoUploadArea.classList.add("dragover");
-  });
-
-  photoUploadArea.addEventListener("dragleave", () => {
-    photoUploadArea.classList.remove("dragover");
-  });
-
-  photoUploadArea.addEventListener("drop", (e) => {
-    e.preventDefault();
-    photoUploadArea.classList.remove("dragover");
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      photoInput.files = files;
-      handlePhotoSelect();
-    }
-  });
-
   // Save button
   document.getElementById("saveBtn").addEventListener("click", saveProfile);
 
@@ -114,43 +83,6 @@ function checkForChanges() {
   }
 }
 
-function handlePhotoSelect() {
-  const photoInput = document.getElementById("photoInput");
-  const file = photoInput.files[0];
-
-  if (!file) return;
-
-  // Validate file
-  if (!file.type.startsWith("image/")) {
-    showAlert("File harus berupa gambar (JPG, PNG, GIF)", "danger");
-    photoInput.value = "";
-    return;
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    showAlert("Ukuran file maksimal 5MB", "danger");
-    photoInput.value = "";
-    return;
-  }
-
-  // Store file
-  selectedPhotoFile = file;
-
-  // Preview
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const profilePhoto = document.getElementById("profilePhoto");
-    const photoPlaceholder = document.getElementById("photoPlaceholder");
-
-    profilePhoto.src = e.target.result;
-    profilePhoto.style.display = "block";
-    photoPlaceholder.style.display = "none";
-
-    profileData.photoUrl = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
 async function loadProfileData() {
   try {
     const userId = localStorage.getItem("inventori_user_id");
@@ -175,8 +107,7 @@ async function loadProfileData() {
       profileData = {
         fullName: response.data.fullName || "",
         email: response.data.email || "",
-        phoneNumber: response.data.phoneNumber || "",
-        photoUrl: response.data.photoUrl || null,
+        phoneNumber: response.data.phoneNumber || ""
       };
 
       // Store original data for comparison
@@ -190,15 +121,6 @@ async function loadProfileData() {
       document.getElementById("fullName").value = profileData.fullName;
       document.getElementById("email").value = profileData.email;
       document.getElementById("phoneNumber").value = profileData.phoneNumber || "";
-
-      if (profileData.photoUrl) {
-        const profilePhoto = document.getElementById("profilePhoto");
-        const photoPlaceholder = document.getElementById("photoPlaceholder");
-
-        profilePhoto.src = profileData.photoUrl;
-        profilePhoto.style.display = "block";
-        photoPlaceholder.style.display = "none";
-      }
     }
   } catch (error) {
     console.error("Error loading profile data:", error);

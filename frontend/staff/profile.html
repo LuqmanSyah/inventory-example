@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil Admin - Sistem Inventori Barang</title>
+  <title>Profil Staff - Sistem Inventori Barang</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
   <style>
@@ -32,7 +32,7 @@
     }
 
     .profile-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
       padding: 40px 20px;
       text-align: center;
       color: white;
@@ -87,7 +87,7 @@
     }
 
     .section-title i {
-      color: #667eea;
+      color: #28a745;
       font-size: 1.3rem;
     }
 
@@ -112,99 +112,10 @@
       background: #f8f9fa;
     }
 
-    .form-control:focus {
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      outline: none;
-    }
-
-    .form-control::placeholder {
-      color: #999;
-    }
-
     .form-control:disabled {
       background-color: #e9ecef;
-      opacity: 0.7;
-    }
-
-    .btn-save {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 30px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-save:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-save:active {
-      transform: translateY(0);
-    }
-
-    .btn-save:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn-cancel {
-      background: #e9ecef;
-      color: #333;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 30px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-cancel:hover {
-      background: #dee2e6;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 30px;
-    }
-
-    .alert {
-      border-radius: 8px;
-      border: none;
-      margin-bottom: 20px;
-    }
-
-    .alert-success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .alert-danger {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-
-    .alert-info {
-      background-color: #d1ecf1;
-      color: #0c5460;
-    }
-
-    .loading-spinner {
-      display: none;
-      margin-right: 8px;
+      opacity: 0.8;
+      color: #495057;
     }
 
     .status-badge {
@@ -217,6 +128,49 @@
       color: #155724;
     }
 
+    .btn-back {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      color: white;
+    }
+
+    .btn-back:active {
+      transform: translateY(0);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+      justify-content: center;
+    }
+
+    .alert {
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    .alert-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+
     @media (max-width: 576px) {
       .profile-container {
         padding: 10px;
@@ -224,16 +178,6 @@
 
       .profile-body {
         padding: 25px 15px;
-      }
-
-      .button-group {
-        flex-direction: column;
-      }
-
-      .btn-save,
-      .btn-cancel {
-        width: 100%;
-        justify-content: center;
       }
 
       .profile-header h1 {
@@ -245,7 +189,7 @@
 
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="dashboard.html">
         <i class="bi bi-box-seam"></i> Inventori Barang
@@ -266,8 +210,8 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="categories.html">
-              <i class="bi bi-tag"></i> Kategori
+            <a class="nav-link" href="stocks.html">
+              <i class="bi bi-graph-up"></i> Stok
             </a>
           </li>
           <li class="nav-item">
@@ -275,20 +219,10 @@
               <i class="bi bi-truck"></i> Supplier
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="stocks.html">
-              <i class="bi bi-graph-up"></i> Stok
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="users.html">
-              <i class="bi bi-people"></i> Users
-            </a>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle active" href="#" id="userDropdown" role="button"
               data-bs-toggle="dropdown">
-              <i class="bi bi-person-circle"></i> <span id="userNameDisplay">Admin</span>
+              <i class="bi bi-person-circle"></i> <span id="userNameDisplay">Staff</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
@@ -319,14 +253,20 @@
         <div class="profile-icon">
           <i class="bi bi-person-circle"></i>
         </div>
-        <h1 id="profileName">Admin</h1>
-        <p id="profileRole">Administrator Sistem</p>
+        <h1 id="profileName">Staff</h1>
+        <p id="profileRole">Staff Inventori</p>
       </div>
 
       <!-- Profile Body -->
       <div class="profile-body">
         <!-- Alert Container -->
         <div id="alertContainer"></div>
+
+        <!-- View Only Notice -->
+        <div class="alert alert-warning" role="alert">
+          <i class="bi bi-info-circle"></i>
+          Halaman ini hanya untuk melihat informasi profil. Hubungi Admin untuk mengubah data profil Anda.
+        </div>
 
         <!-- Personal Information Section -->
         <div class="profile-section">
@@ -336,12 +276,12 @@
 
           <div class="form-group">
             <label for="fullName" class="form-label">Nama Lengkap</label>
-            <input type="text" class="form-control" id="fullName" placeholder="Masukkan nama lengkap" />
+            <input type="text" class="form-control" id="fullName" disabled />
           </div>
 
           <div class="form-group">
             <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" placeholder="Masukkan username" disabled />
+            <input type="text" class="form-control" id="username" disabled />
           </div>
         </div>
 
@@ -353,24 +293,18 @@
 
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" placeholder="Masukkan email" />
+            <input type="email" class="form-control" id="email" disabled />
           </div>
 
           <div class="form-group">
             <label for="phoneNumber" class="form-label">Nomor Telepon</label>
-            <input type="tel" class="form-control" id="phoneNumber" placeholder="Masukkan nomor telepon (08...)" />
+            <input type="tel" class="form-control" id="phoneNumber" disabled />
           </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="button-group">
-          <button class="btn-save" id="saveBtn">
-            <span class="loading-spinner" id="spinner">
-              <span class="spinner-border spinner-border-sm" role="status"></span>
-            </span>
-            <span><i class="bi bi-check-circle"></i> Simpan Perubahan</span>
-          </button>
-          <a href="dashboard.html" class="btn-cancel">
+          <a href="dashboard.html" class="btn-back">
             <i class="bi bi-arrow-left"></i> Kembali ke Dashboard
           </a>
         </div>
