@@ -32,6 +32,11 @@
       color: white;
     }
 
+    .avatar-super-admin {
+      background-color: #dc3545;
+      color: white;
+    }
+
     .avatar-staff {
       background-color: #6c757d;
       color: white;
@@ -192,6 +197,7 @@
           <div class="col-md-3 mb-2 mb-md-0">
             <select class="form-select" id="roleFilter">
               <option value="">Semua Role</option>
+              <option value="SUPER_ADMIN">Super Admin</option>
               <option value="ADMIN">Admin</option>
               <option value="STAFF">Staff</option>
             </select>
@@ -284,8 +290,9 @@
                 <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
                 <select class="form-select" id="role" required>
                   <option value="STAFF">Staff</option>
-                  <option value="ADMIN">Admin</option>
+                  <option value="ADMIN" id="adminRoleOption">Admin</option>
                 </select>
+                <div class="form-text" id="roleHint"></div>
               </div>
               <div class="col-md-3 mb-3">
                 <label for="isActive" class="form-label">Status</label>

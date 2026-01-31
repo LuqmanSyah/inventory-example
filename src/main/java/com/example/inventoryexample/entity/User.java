@@ -64,7 +64,8 @@ public class User {
     }
     
     public enum UserRole {
-        ADMIN("Admin", "Akses penuh ke semua fitur"),
+        SUPER_ADMIN("Super Admin", "Akses penuh ke semua fitur termasuk manajemen admin"),
+        ADMIN("Admin", "Akses penuh ke fitur kecuali membuat admin baru"),
         STAFF("Staff", "Akses terbatas ke kelola produk, stok, dan supplier");
         
         private final String displayName;

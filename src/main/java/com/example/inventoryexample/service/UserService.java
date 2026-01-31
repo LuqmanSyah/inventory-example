@@ -87,7 +87,7 @@ public class UserService {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Role " + role + " tidak valid. Gunakan ADMIN atau STAFF");
+            throw new RuntimeException("Role " + role + " tidak valid. Gunakan SUPER_ADMIN, ADMIN, atau STAFF");
         }
     }
     
@@ -110,6 +110,11 @@ public class UserService {
     
     @Transactional
     public UserDto createUserFromDto(UserDto userDto) {
+        return createUserFromDto(userDto, null);
+    }
+    
+    @Transactional
+    public UserDto createUserFromDto(UserDto userDto, Long requesterId) {
         // Validasi username unik
         if (userRepository.existsByUsername(userDto.getUsername())) {
             throw new RuntimeException("Username " + userDto.getUsername() + " sudah digunakan");
@@ -120,23 +125,102 @@ public class UserService {
             throw new RuntimeException("Email " + userDto.getEmail() + " sudah digunakan");
         }
         
+        // Validasi role
+        User.UserRole targetRole = userDto.getRole() != null ? userDto.getRole() : User.UserRole.STAFF;
+        validateRoleCreation(targetRole, requesterId);
+        
         User user = new User();
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setFullName(userDto.getFullName());
         user.setEmail(userDto.getEmail());
         user.setPhoneNumber(userDto.getPhoneNumber());
-        user.setRole(userDto.getRole() != null ? userDto.getRole() : User.UserRole.STAFF);
+        user.setRole(targetRole);
         user.setIsActive(userDto.getIsActive() != null ? userDto.getIsActive() : true);
         
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
     }
     
+    /**
+     * Validasi pembuatan role berdasarkan aturan:
+     * - SUPER_ADMIN hanya boleh ada 1
+     * - Hanya SUPER_ADMIN yang bisa membuat ADMIN
+     * - ADMIN tidak bisa membuat ADMIN atau SUPER_ADMIN
+     */
+    private void validateRoleCreation(User.UserRole targetRole, Long requesterId) {
+        // Validasi SUPER_ADMIN hanya boleh 1
+        if (targetRole == User.UserRole.SUPER_ADMIN) {
+            if (userRepository.existsByRole(User.UserRole.SUPER_ADMIN)) {
+                throw new RuntimeException("Super Admin sudah ada. Hanya boleh ada 1 Super Admin dalam sistem.");
+            }
+        }
+        
+        // Jika requesterId ada, validasi permission
+        if (requesterId != null) {
+            User requester = userRepository.findById(requesterId).orElse(null);
+            if (requester != null) {
+                // ADMIN tidak bisa membuat ADMIN atau SUPER_ADMIN
+                if (requester.getRole() == User.UserRole.ADMIN) {
+                    if (targetRole == User.UserRole.ADMIN || targetRole == User.UserRole.SUPER_ADMIN) {
+                        throw new RuntimeException("Admin tidak dapat membuat user dengan role Admin atau Super Admin. Hanya Super Admin yang dapat melakukan ini.");
+                    }
+                }
+                // STAFF tidak bisa membuat user apapun
+                if (requester.getRole() == User.UserRole.STAFF) {
+                    throw new RuntimeException("Staff tidak memiliki akses untuk membuat user baru.");
+                }
+            }
+        }
+    }
+    
+    /**
+     * Validasi perubahan role berdasarkan aturan
+     */
+    private void validateRoleChange(User.UserRole currentRole, User.UserRole newRole, Long requesterId) {
+        // Jika role tidak berubah, tidak perlu validasi
+        if (currentRole == newRole) {
+            return;
+        }
+        
+        // Tidak boleh mengubah menjadi SUPER_ADMIN jika sudah ada
+        if (newRole == User.UserRole.SUPER_ADMIN && currentRole != User.UserRole.SUPER_ADMIN) {
+            if (userRepository.existsByRole(User.UserRole.SUPER_ADMIN)) {
+                throw new RuntimeException("Super Admin sudah ada. Hanya boleh ada 1 Super Admin dalam sistem.");
+            }
+        }
+        
+        if (requesterId != null) {
+            User requester = userRepository.findById(requesterId).orElse(null);
+            if (requester != null) {
+                // ADMIN tidak bisa mengubah role ke ADMIN atau SUPER_ADMIN
+                if (requester.getRole() == User.UserRole.ADMIN) {
+                    if (newRole == User.UserRole.ADMIN || newRole == User.UserRole.SUPER_ADMIN) {
+                        throw new RuntimeException("Admin tidak dapat mengubah role menjadi Admin atau Super Admin.");
+                    }
+                    // ADMIN tidak bisa mengubah role SUPER_ADMIN atau ADMIN lain
+                    if (currentRole == User.UserRole.SUPER_ADMIN || currentRole == User.UserRole.ADMIN) {
+                        throw new RuntimeException("Admin tidak dapat mengubah role Super Admin atau Admin lain.");
+                    }
+                }
+            }
+        }
+    }
+    
     @Transactional
     public UserDto updateUser(Long id, User userDetails) {
+        return updateUser(id, userDetails, null);
+    }
+    
+    @Transactional
+    public UserDto updateUser(Long id, User userDetails, Long requesterId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
+        
+        // Validasi perubahan role
+        if (userDetails.getRole() != null) {
+            validateRoleChange(user.getRole(), userDetails.getRole(), requesterId);
+        }
         
         user.setFullName(userDetails.getFullName());
         user.setEmail(userDetails.getEmail());
@@ -149,6 +233,11 @@ public class UserService {
     
     @Transactional
     public UserDto updateUserFromDto(Long id, UserDto userDto) {
+        return updateUserFromDto(id, userDto, null);
+    }
+    
+    @Transactional
+    public UserDto updateUserFromDto(Long id, UserDto userDto, Long requesterId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
         
@@ -162,6 +251,11 @@ public class UserService {
         if (!user.getEmail().equals(userDto.getEmail()) && 
             userRepository.existsByEmail(userDto.getEmail())) {
             throw new RuntimeException("Email " + userDto.getEmail() + " sudah digunakan");
+        }
+        
+        // Validasi perubahan role
+        if (userDto.getRole() != null && userDto.getRole() != user.getRole()) {
+            validateRoleChange(user.getRole(), userDto.getRole(), requesterId);
         }
         
         user.setUsername(userDto.getUsername());
@@ -188,14 +282,27 @@ public class UserService {
     
     @Transactional
     public void deleteUser(Long id) {
+        deleteUser(id, null);
+    }
+    
+    @Transactional
+    public void deleteUser(Long id, Long requesterId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User dengan ID " + id + " tidak ditemukan"));
         
-        // Cek apakah ini admin terakhir
-        if (user.getRole() == User.UserRole.ADMIN) {
-            long adminCount = userRepository.findByRole(User.UserRole.ADMIN).size();
-            if (adminCount <= 1) {
-                throw new RuntimeException("Tidak dapat menghapus admin terakhir. Sistem harus memiliki minimal 1 admin.");
+        // SUPER_ADMIN tidak dapat dihapus
+        if (user.getRole() == User.UserRole.SUPER_ADMIN) {
+            throw new RuntimeException("Super Admin tidak dapat dihapus.");
+        }
+        
+        // Validasi requester permission
+        if (requesterId != null) {
+            User requester = userRepository.findById(requesterId).orElse(null);
+            if (requester != null && requester.getRole() == User.UserRole.ADMIN) {
+                // ADMIN tidak bisa menghapus ADMIN lain
+                if (user.getRole() == User.UserRole.ADMIN) {
+                    throw new RuntimeException("Admin tidak dapat menghapus Admin lain. Hanya Super Admin yang dapat melakukan ini.");
+                }
             }
         }
         
@@ -231,12 +338,14 @@ public class UserService {
         
         List<User> allUsers = userRepository.findAll();
         long totalUsers = allUsers.size();
+        long superAdminCount = allUsers.stream().filter(u -> u.getRole() == User.UserRole.SUPER_ADMIN).count();
         long adminCount = allUsers.stream().filter(u -> u.getRole() == User.UserRole.ADMIN).count();
         long staffCount = allUsers.stream().filter(u -> u.getRole() == User.UserRole.STAFF).count();
         long activeUsers = allUsers.stream().filter(User::getIsActive).count();
         long inactiveUsers = totalUsers - activeUsers;
         
         stats.put("totalUsers", totalUsers);
+        stats.put("superAdminCount", superAdminCount);
         stats.put("adminCount", adminCount);
         stats.put("staffCount", staffCount);
         stats.put("activeUsers", activeUsers);

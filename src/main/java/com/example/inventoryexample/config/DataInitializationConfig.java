@@ -42,8 +42,38 @@ public class DataInitializationConfig {
     }
     
     private void initializeUsers() {
-        // Create default admin user jika belum ada
-        if (!userRepository.existsByUsername("admin")) {
+        // Create default SUPER ADMIN user jika belum ada (hanya boleh 1)
+        if (!userRepository.existsByRole(User.UserRole.SUPER_ADMIN)) {
+            if (!userRepository.existsByUsername("superadmin")) {
+                User superAdmin = new User();
+                superAdmin.setUsername("superadmin");
+                superAdmin.setPassword(passwordEncoder.encode("superadmin123"));
+                superAdmin.setFullName("Super Administrator");
+                superAdmin.setEmail("superadmin@inventori.com");
+                superAdmin.setRole(User.UserRole.SUPER_ADMIN);
+                superAdmin.setIsActive(true);
+                userRepository.save(superAdmin);
+                System.out.println("✓ Super Admin user created: superadmin / superadmin123");
+            }
+        }
+        
+        // Update existing admin user to regular ADMIN (bukan SUPER_ADMIN)
+        if (userRepository.existsByUsername("admin")) {
+            userRepository.findByUsername("admin").ifPresent(admin -> {
+                if (admin.getRole() == User.UserRole.SUPER_ADMIN) {
+                    // Jika sudah ada super admin lain, ubah jadi admin biasa
+                    if (userRepository.countByRole(User.UserRole.SUPER_ADMIN) > 1) {
+                        admin.setRole(User.UserRole.ADMIN);
+                    }
+                }
+                if (!admin.getPassword().startsWith("$2a$") && !admin.getPassword().startsWith("$2b$")) {
+                    admin.setPassword(passwordEncoder.encode("admin123"));
+                }
+                userRepository.save(admin);
+                System.out.println("✓ Admin user updated: admin / admin123");
+            });
+        } else {
+            // Create default admin user
             User admin = new User();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("admin123"));
@@ -53,15 +83,6 @@ public class DataInitializationConfig {
             admin.setIsActive(true);
             userRepository.save(admin);
             System.out.println("✓ Admin user created: admin / admin123");
-        } else {
-            // Update existing admin password to hashed version if it's plain text
-            userRepository.findByUsername("admin").ifPresent(admin -> {
-                if (!admin.getPassword().startsWith("$2a$") && !admin.getPassword().startsWith("$2b$")) {
-                    admin.setPassword(passwordEncoder.encode("admin123"));
-                    userRepository.save(admin);
-                    System.out.println("✓ Admin password updated to hashed version");
-                }
-            });
         }
         
         // Create default staff user jika belum ada
@@ -86,7 +107,7 @@ public class DataInitializationConfig {
             });
         }
         
-        // Create additional users
+        // Create additional users (john_admin is now regular ADMIN, not SUPER_ADMIN)
         createUserIfNotExists("john_admin", "John Doe", "john@inventori.com", User.UserRole.ADMIN);
         createUserIfNotExists("sarah_staff", "Sarah Wilson", "sarah@inventori.com", User.UserRole.STAFF);
         createUserIfNotExists("mike_staff", "Mike Johnson", "mike@inventori.com", User.UserRole.STAFF);

@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (existingUser && existingRole) {
     // User is already logged in, redirect to appropriate dashboard
-    if (existingRole === "ADMIN") {
+    if (existingRole === "ADMIN" || existingRole === "SUPER_ADMIN") {
       window.location.href = "admin/dashboard.html";
     } else {
       window.location.href = "staff/dashboard.html";
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Redirect based on role to new folder structure
       setTimeout(() => {
-        if (user.role === "ADMIN") {
+        if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
           window.location.href = "admin/dashboard.html";
         } else {
           window.location.href = "staff/dashboard.html";

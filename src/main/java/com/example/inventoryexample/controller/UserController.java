@@ -34,16 +34,19 @@ public class UserController {
     }
     
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(
+            @Valid @RequestBody UserDto userDto,
+            @RequestHeader(value = "X-Requester-Id", required = false) Long requesterId) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.createUserFromDto(userDto));
+                .body(userService.createUserFromDto(userDto, requesterId));
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.updateUserFromDto(id, userDto));
+            @Valid @RequestBody UserDto userDto,
+            @RequestHeader(value = "X-Requester-Id", required = false) Long requesterId) {
+        return ResponseEntity.ok(userService.updateUserFromDto(id, userDto, requesterId));
     }
     
     @PatchMapping("/{id}/status")
@@ -61,8 +64,10 @@ public class UserController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Requester-Id", required = false) Long requesterId) {
+        userService.deleteUser(id, requesterId);
         return ResponseEntity.noContent().build();
     }
     

@@ -2,19 +2,28 @@
 let allUsers = [];
 let deleteUserId = null;
 let currentUserId = null;
+let currentUserRole = null;
 
 document.addEventListener("DOMContentLoaded", function () {
   checkAuth();
   checkAdminRole();
+
+  // Only SUPER_ADMIN can access user management - redirect others
+  if (!checkSuperAdminRole()) {
+    return; // Stop execution if not super admin
+  }
+
   setUserDisplay();
   setupLogoutHandler();
 
-  // Get current user ID
+  // Get current user ID and Role
   currentUserId = localStorage.getItem("inventori_user_id");
+  currentUserRole = localStorage.getItem("inventori_user_role");
 
   loadUsers();
   loadUserStats();
   setupEventListeners();
+  setupRoleOptions();
 });
 
 function setupEventListeners() {
@@ -26,6 +35,30 @@ function setupEventListeners() {
 
   // Status filter
   document.getElementById("statusFilter").addEventListener("change", filterUsers);
+}
+
+// Setup role options based on current user's role
+function setupRoleOptions() {
+  const roleSelect = document.getElementById("role");
+  const roleHint = document.getElementById("roleHint");
+  const adminRoleOption = document.getElementById("adminRoleOption");
+
+  // Only SUPER_ADMIN can create/edit ADMIN users
+  if (currentUserRole === "SUPER_ADMIN") {
+    // Super Admin can create Admin users
+    if (adminRoleOption) {
+      adminRoleOption.style.display = "block";
+    }
+    roleHint.textContent = "Sebagai Super Admin, Anda dapat membuat user Admin";
+    roleHint.className = "form-text text-success";
+  } else {
+    // Regular Admin can only create Staff users
+    if (adminRoleOption) {
+      adminRoleOption.style.display = "none";
+    }
+    roleHint.textContent = "Admin hanya dapat membuat user Staff";
+    roleHint.className = "form-text text-warning";
+  }
 }
 
 async function loadUsers() {
@@ -44,7 +77,9 @@ async function loadUserStats() {
     const stats = response.data;
 
     document.getElementById("totalUsers").textContent = stats.totalUsers || 0;
-    document.getElementById("adminCount").textContent = stats.adminCount || 0;
+    // Combine Super Admin and Admin count for display, or show separately
+    const totalAdmins = (stats.superAdminCount || 0) + (stats.adminCount || 0);
+    document.getElementById("adminCount").textContent = totalAdmins;
     document.getElementById("staffCount").textContent = stats.staffCount || 0;
     document.getElementById("activeUsers").textContent = stats.activeUsers || 0;
   } catch (error) {
@@ -63,11 +98,18 @@ function displayUsers(users) {
   tbody.innerHTML = users
     .map((user) => {
       const initials = getInitials(user.fullName || user.username);
-      const avatarClass = user.role === "ADMIN" ? "avatar-admin" : "avatar-staff";
-      const roleBadgeClass = user.role === "ADMIN" ? "bg-primary" : "bg-secondary";
+      const isSuperAdmin = user.role === "SUPER_ADMIN";
+      const isAdmin = user.role === "ADMIN";
+      const avatarClass = isSuperAdmin ? "avatar-super-admin" : isAdmin ? "avatar-admin" : "avatar-staff";
+      const roleBadgeClass = isSuperAdmin ? "bg-danger" : isAdmin ? "bg-primary" : "bg-secondary";
+      const roleDisplay = isSuperAdmin ? "Super Admin" : user.role;
       const statusBadgeClass = user.isActive ? "bg-success" : "bg-danger";
       const statusText = user.isActive ? "Aktif" : "Tidak Aktif";
       const isCurrentUser = user.id.toString() === currentUserId;
+
+      // Determine if edit/delete is allowed based on current user's role
+      const canEdit = currentUserRole === "SUPER_ADMIN" || (currentUserRole === "ADMIN" && user.role === "STAFF");
+      const canDelete = (currentUserRole === "SUPER_ADMIN" && !isSuperAdmin && !isCurrentUser) || (currentUserRole === "ADMIN" && user.role === "STAFF" && !isCurrentUser);
 
       return `
       <tr>
@@ -84,7 +126,7 @@ function displayUsers(users) {
         <td>${escapeHtml(user.email || "-")}</td>
         <td>${escapeHtml(user.phoneNumber || "-")}</td>
         <td>
-          <span class="badge ${roleBadgeClass}">${user.role}</span>
+          <span class="badge ${roleBadgeClass}">${roleDisplay}</span>
         </td>
         <td>
           <span class="badge status-badge ${statusBadgeClass}">${statusText}</span>
@@ -94,10 +136,10 @@ function displayUsers(users) {
             <button class="btn btn-outline-info" onclick="viewUser(${user.id})" title="Detail">
               <i class="bi bi-eye"></i>
             </button>
-            <button class="btn btn-outline-warning" onclick="openEditModal(${user.id})" title="Edit">
+            <button class="btn btn-outline-warning" onclick="openEditModal(${user.id})" title="Edit" ${!canEdit ? "disabled" : ""}>
               <i class="bi bi-pencil"></i>
             </button>
-            <button class="btn btn-outline-danger" onclick="openDeleteModal(${user.id})" title="Hapus" ${isCurrentUser ? "disabled" : ""}>
+            <button class="btn btn-outline-danger" onclick="openDeleteModal(${user.id})" title="Hapus" ${!canDelete ? "disabled" : ""}>
               <i class="bi bi-trash"></i>
             </button>
           </div>
@@ -150,6 +192,9 @@ function openAddModal() {
   document.getElementById("passwordHint").textContent = "Minimal 6 karakter";
   document.getElementById("isActive").value = "true";
   document.getElementById("role").value = "STAFF";
+
+  // Setup role options based on current user's role
+  setupRoleOptions();
 }
 
 async function openEditModal(id) {
@@ -170,6 +215,23 @@ async function openEditModal(id) {
     document.getElementById("phoneNumber").value = user.phoneNumber || "";
     document.getElementById("role").value = user.role;
     document.getElementById("isActive").value = user.isActive ? "true" : "false";
+
+    // Setup role options and handle restrictions
+    setupRoleOptions();
+
+    // Disable role change for SUPER_ADMIN and ADMIN (if current user is not SUPER_ADMIN)
+    const roleSelect = document.getElementById("role");
+    if (user.role === "SUPER_ADMIN") {
+      roleSelect.disabled = true;
+      document.getElementById("roleHint").textContent = "Role Super Admin tidak dapat diubah";
+      document.getElementById("roleHint").className = "form-text text-danger";
+    } else if (user.role === "ADMIN" && currentUserRole !== "SUPER_ADMIN") {
+      roleSelect.disabled = true;
+      document.getElementById("roleHint").textContent = "Hanya Super Admin yang dapat mengubah role Admin";
+      document.getElementById("roleHint").className = "form-text text-warning";
+    } else {
+      roleSelect.disabled = false;
+    }
 
     const modal = new bootstrap.Modal(document.getElementById("userModal"));
     modal.show();
@@ -203,13 +265,19 @@ async function saveUser() {
   }
 
   try {
+    const config = {
+      headers: {
+        "X-Requester-Id": currentUserId,
+      },
+    };
+
     if (id) {
       // Update existing user
-      await axios.put(`${API_ENDPOINTS.users}/${id}`, userData);
+      await axios.put(`${API_ENDPOINTS.users}/${id}`, userData, config);
       showAlert("User berhasil diperbarui!", "success");
     } else {
       // Create new user
-      await axios.post(API_ENDPOINTS.users, userData);
+      await axios.post(API_ENDPOINTS.users, userData, config);
       showAlert("User berhasil ditambahkan!", "success");
     }
 
@@ -228,15 +296,18 @@ async function viewUser(id) {
     const user = response.data;
 
     const initials = getInitials(user.fullName || user.username);
-    const avatarClass = user.role === "ADMIN" ? "avatar-admin" : "avatar-staff";
-    const roleBadgeClass = user.role === "ADMIN" ? "bg-primary" : "bg-secondary";
+    const isSuperAdmin = user.role === "SUPER_ADMIN";
+    const isAdmin = user.role === "ADMIN";
+    const avatarClass = isSuperAdmin ? "avatar-super-admin" : isAdmin ? "avatar-admin" : "avatar-staff";
+    const roleBadgeClass = isSuperAdmin ? "bg-danger" : isAdmin ? "bg-primary" : "bg-secondary";
+    const roleDisplay = isSuperAdmin ? "Super Admin" : user.role;
 
     document.getElementById("viewUserAvatar").className = `user-avatar mx-auto mb-3 ${avatarClass}`;
     document.getElementById("viewUserAvatar").style.cssText = "width: 80px; height: 80px; font-size: 2rem;";
     document.getElementById("viewUserAvatar").textContent = initials;
     document.getElementById("viewFullName").textContent = user.fullName || "-";
     document.getElementById("viewRoleBadge").className = `badge ${roleBadgeClass}`;
-    document.getElementById("viewRoleBadge").textContent = user.role;
+    document.getElementById("viewRoleBadge").textContent = roleDisplay;
     document.getElementById("viewUsername").textContent = user.username;
     document.getElementById("viewEmail").textContent = user.email || "-";
     document.getElementById("viewPhone").textContent = user.phoneNumber || "-";
@@ -277,7 +348,12 @@ async function confirmDelete() {
   if (!deleteUserId) return;
 
   try {
-    await axios.delete(`${API_ENDPOINTS.users}/${deleteUserId}`);
+    const config = {
+      headers: {
+        "X-Requester-Id": currentUserId,
+      },
+    };
+    await axios.delete(`${API_ENDPOINTS.users}/${deleteUserId}`, config);
     showAlert("User berhasil dihapus!", "success");
 
     bootstrap.Modal.getInstance(document.getElementById("deleteModal")).hide();

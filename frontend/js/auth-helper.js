@@ -18,10 +18,10 @@ function checkAuth() {
   }
 }
 
-// Check if user has admin role
+// Check if user has admin role (includes SUPER_ADMIN)
 function checkAdminRole() {
   const userRole = localStorage.getItem("inventori_user_role");
-  if (userRole !== "ADMIN") {
+  if (userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
     // Redirect to staff dashboard if not admin
     window.location.href = "../staff/dashboard.html";
     return false;
@@ -40,9 +40,63 @@ function checkStaffRole() {
   return true;
 }
 
+// Check if user is Super Admin
+function isSuperAdmin() {
+  const userRole = localStorage.getItem("inventori_user_role");
+  return userRole === "SUPER_ADMIN";
+}
+
+// Check if user has super admin role - redirect to dashboard if not
+function checkSuperAdminRole() {
+  const userRole = localStorage.getItem("inventori_user_role");
+  if (userRole !== "SUPER_ADMIN") {
+    // Redirect to admin dashboard if not super admin
+    window.location.href = "dashboard.html";
+    return false;
+  }
+  return true;
+}
+
+// Check if user is Admin (regular admin, not super admin)
+function isAdmin() {
+  const userRole = localStorage.getItem("inventori_user_role");
+  return userRole === "ADMIN";
+}
+
 // Get current user role
 function getUserRole() {
   return localStorage.getItem("inventori_user_role");
+}
+
+// Hide Users menu for regular admin (only SUPER_ADMIN can access)
+function hideUsersMenuForNonSuperAdmin() {
+  const userRole = getUserRole();
+
+  console.log("Checking user role for hiding Users menu:", userRole);
+
+  // If user is not SUPER_ADMIN, hide the Users menu
+  if (userRole !== "SUPER_ADMIN") {
+    // Execute immediately and with timeout for reliability
+    const hideMenu = () => {
+      // Find all Users menu items
+      const usersLinks = document.querySelectorAll('a[href="users.html"]');
+      console.log("Found users links:", usersLinks.length);
+
+      usersLinks.forEach((link) => {
+        const navItem = link.closest("li.nav-item");
+        if (navItem) {
+          navItem.style.display = "none";
+          console.log("Hidden users menu item");
+        }
+      });
+    };
+
+    // Execute immediately
+    hideMenu();
+
+    // Also execute with timeout to ensure DOM is ready
+    setTimeout(hideMenu, 100);
+  }
 }
 
 // Set user display name from database
@@ -55,6 +109,8 @@ async function setUserDisplay() {
     if (user && document.getElementById("userNameDisplay")) {
       document.getElementById("userNameDisplay").textContent = user.fullName || user.username || "User";
     }
+    // Hide users menu for non-super-admin
+    hideUsersMenuForNonSuperAdmin();
     return;
   }
 
@@ -78,6 +134,9 @@ async function setUserDisplay() {
       document.getElementById("userNameDisplay").textContent = user.fullName || user.username || "User";
     }
   }
+
+  // Hide users menu for non-super-admin
+  hideUsersMenuForNonSuperAdmin();
 }
 
 // Logout function
@@ -177,15 +236,21 @@ function setupDashboardLinks() {
 
   // Hide categories link for non-admin users
   const categoriesNavItem = document.getElementById("categoriesNavItem");
-  if (categoriesNavItem && userRole !== "ADMIN") {
+  if (categoriesNavItem && userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
     categoriesNavItem.style.display = "none";
   }
+
+  // Hide users menu for non-super-admin users
+  hideUsersMenuForNonSuperAdmin();
 }
 
 // Setup logout button
 document.addEventListener("DOMContentLoaded", function () {
   setUserDisplay();
   setupDashboardLinks(); // Setup dashboard links based on role
+
+  // Ensure users menu is hidden for non-super-admin after DOM is loaded
+  hideUsersMenuForNonSuperAdmin();
 
   const logoutBtn = document.getElementById("logoutBtn");
   const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
