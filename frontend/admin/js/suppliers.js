@@ -14,6 +14,25 @@ document.addEventListener("DOMContentLoaded", function () {
 function setupEventListeners() {
   // Search input
   document.getElementById("searchInput").addEventListener("input", filterSuppliers);
+
+  // Real-time validation for phone and email
+  document.getElementById("supplierPhoneNumber").addEventListener("input", function () {
+    const validation = validatePhoneNumber(this.value);
+    if (this.value && !validation.valid) {
+      showFieldError("supplierPhoneNumber", validation.message);
+    } else {
+      clearFieldError("supplierPhoneNumber");
+    }
+  });
+
+  document.getElementById("supplierEmail").addEventListener("input", function () {
+    const validation = validateEmail(this.value);
+    if (!validation.valid) {
+      showFieldError("supplierEmail", validation.message);
+    } else {
+      clearFieldError("supplierEmail");
+    }
+  });
 }
 
 async function loadSuppliers() {
@@ -81,10 +100,12 @@ function openAddModal() {
   document.getElementById("modalTitle").textContent = "Add Supplier";
   document.getElementById("supplierForm").reset();
   document.getElementById("supplierId").value = "";
+  clearAllFieldErrors();
 }
 
 async function openEditModal(id) {
   try {
+    clearAllFieldErrors();
     const response = await axios.get(`${API_ENDPOINTS.suppliers}/${id}`);
     const supplier = response.data;
 
@@ -103,11 +124,89 @@ async function openEditModal(id) {
   }
 }
 
+// Validation functions for phone and email
+function validatePhoneNumber(phone) {
+  if (!phone || phone.trim() === "") {
+    return { valid: true, message: "" }; // Phone is optional
+  }
+  const phoneRegex = /^(\+62|62|0)[0-9]{8,13}$/;
+  if (!phoneRegex.test(phone)) {
+    return { valid: false, message: "Format nomor telepon tidak valid. Gunakan format: 08xx, 62xx, atau +62xx (9-14 digit)" };
+  }
+  return { valid: true, message: "" };
+}
+
+function validateEmail(email) {
+  if (!email || email.trim() === "") {
+    return { valid: false, message: "Email tidak boleh kosong" };
+  }
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    return { valid: false, message: "Format email tidak valid" };
+  }
+  return { valid: true, message: "" };
+}
+
+function showFieldError(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  field.classList.add("is-invalid");
+
+  // Remove existing error message if any
+  const existingError = field.parentElement.querySelector(".invalid-feedback");
+  if (existingError) {
+    existingError.remove();
+  }
+
+  // Add new error message
+  const errorDiv = document.createElement("div");
+  errorDiv.className = "invalid-feedback";
+  errorDiv.textContent = message;
+  field.parentElement.appendChild(errorDiv);
+}
+
+function clearFieldError(fieldId) {
+  const field = document.getElementById(fieldId);
+  field.classList.remove("is-invalid");
+  const existingError = field.parentElement.querySelector(".invalid-feedback");
+  if (existingError) {
+    existingError.remove();
+  }
+}
+
+function clearAllFieldErrors() {
+  clearFieldError("supplierPhoneNumber");
+  clearFieldError("supplierEmail");
+}
+
 async function saveSupplier() {
   const form = document.getElementById("supplierForm");
+  clearAllFieldErrors();
 
   if (!form.checkValidity()) {
     form.reportValidity();
+    return;
+  }
+
+  // Custom validation for phone and email
+  const phoneNumber = document.getElementById("supplierPhoneNumber").value;
+  const email = document.getElementById("supplierEmail").value;
+
+  const phoneValidation = validatePhoneNumber(phoneNumber);
+  const emailValidation = validateEmail(email);
+
+  let hasErrors = false;
+
+  if (!phoneValidation.valid) {
+    showFieldError("supplierPhoneNumber", phoneValidation.message);
+    hasErrors = true;
+  }
+
+  if (!emailValidation.valid) {
+    showFieldError("supplierEmail", emailValidation.message);
+    hasErrors = true;
+  }
+
+  if (hasErrors) {
     return;
   }
 
@@ -115,13 +214,13 @@ async function saveSupplier() {
   const supplierData = {
     name: document.getElementById("supplierName").value,
     address: document.getElementById("supplierAddress").value,
-    phoneNumber: document.getElementById("supplierPhoneNumber").value || null,
-    email: document.getElementById("supplierEmail").value || null,
+    phoneNumber: phoneNumber || null,
+    email: email || null,
     description: document.getElementById("supplierDescription").value || null,
   };
 
-  console.log('Supplier data:', supplierData);
-  console.log('API endpoint:', API_ENDPOINTS.suppliers);
+  console.log("Supplier data:", supplierData);
+  console.log("API endpoint:", API_ENDPOINTS.suppliers);
 
   try {
     if (id) {
@@ -130,7 +229,7 @@ async function saveSupplier() {
       showAlert("Supplier updated successfully!", "success");
     } else {
       // Create new supplier
-      console.log('Creating new supplier');
+      console.log("Creating new supplier");
       await axios.post(API_ENDPOINTS.suppliers, supplierData);
       showAlert("Supplier created successfully!", "success");
     }
@@ -139,7 +238,7 @@ async function saveSupplier() {
     bootstrap.Modal.getInstance(document.getElementById("supplierModal")).hide();
     loadSuppliers();
   } catch (error) {
-    console.error('Save error:', error);
+    console.error("Save error:", error);
     handleError(error);
   }
 }

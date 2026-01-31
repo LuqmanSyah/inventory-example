@@ -133,7 +133,7 @@ public class DataInitializationConfig {
         createSupplierIfNotExists(
             "PT Teknologi Maju",
             "Jl. Sudirman No. 123, Jakarta Pusat",
-            "021-5551234",
+            "02155512340",
             "info@tekmaju.com",
             "Supplier komputer dan laptop terpercaya"
         );
@@ -141,7 +141,7 @@ public class DataInitializationConfig {
         createSupplierIfNotExists(
             "CV Elektronik Jaya",
             "Jl. Gatot Subroto No. 456, Bandung",
-            "022-7771234",
+            "02277712340",
             "sales@elektronikjaya.com",
             "Supplier elektronik dan komponen"
         );
@@ -149,7 +149,7 @@ public class DataInitializationConfig {
         createSupplierIfNotExists(
             "UD Mitra Sejahtera",
             "Jl. Ahmad Yani No. 789, Surabaya",
-            "031-8881234",
+            "03188812340",
             "contact@mitrasejahtera.com",
             "Supplier peralatan kantor dan furniture"
         );
@@ -157,7 +157,7 @@ public class DataInitializationConfig {
         createSupplierIfNotExists(
             "PT Global Tech Solution",
             "Jl. Rasuna Said No. 321, Jakarta Selatan",
-            "021-9991234",
+            "02199912340",
             "info@globaltech.com",
             "Supplier networking dan server equipment"
         );
@@ -165,7 +165,7 @@ public class DataInitializationConfig {
         createSupplierIfNotExists(
             "CV Digital Media",
             "Jl. Diponegoro No. 654, Yogyakarta",
-            "0274-6661234",
+            "027466612340",
             "sales@digitalmedia.com",
             "Supplier audio, video, dan multimedia"
         );
@@ -173,7 +173,7 @@ public class DataInitializationConfig {
         createSupplierIfNotExists(
             "UD Smartphone Center",
             "Jl. Mangga Dua, Jakarta Utara",
-            "021-4441234",
+            "02144412340",
             "info@smartphonecenter.com",
             "Supplier smartphone dan tablet"
         );
@@ -181,7 +181,7 @@ public class DataInitializationConfig {
         createSupplierIfNotExists(
             "PT Gaming Pro",
             "Jl. Sudirman No. 999, Surabaya",
-            "031-5551234",
+            "03155512340",
             "sales@gamingpro.com",
             "Supplier peralatan gaming"
         );
