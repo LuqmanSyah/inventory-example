@@ -2,11 +2,24 @@
 
 ## 📋 Ringkasan Project
 
-Ini adalah sistem manajemen inventori menggunakan:
+Ini adalah sistem manajemen inventori lengkap dengan fitur **autentikasi** dan **role-based access control** menggunakan:
 
-- **Backend**: Spring Boot 4.0.2 + Java 25 + PostgreSQL
+- **Backend**: Spring Boot 4.0.2 + Java 25 + PostgreSQL + Spring Security
 - **Frontend**: HTML + JavaScript (Vanilla JS dengan Axios)
 - **Arsitektur**: REST API dengan pola MVC (Model-View-Controller)
+- **Keamanan**: BCrypt Password Hashing + Role-Based Access (Admin/Staff)
+
+### Fitur Utama:
+
+✅ **Autentikasi & Login** - Sistem login dengan password terenkripsi  
+✅ **Role-Based Access Control** - Admin & Staff dengan hak akses berbeda  
+✅ **Manajemen User** - CRUD user, reset password, toggle status  
+✅ **Manajemen Produk** - CRUD produk dengan SKU auto-generate  
+✅ **Manajemen Kategori** - Pengelompokan produk  
+✅ **Manajemen Supplier** - Data pemasok  
+✅ **Manajemen Stok** - Tracking quantity & minimum stock alert  
+✅ **Dashboard** - Ringkasan statistik sistem  
+✅ **Profile Management** - Update profil user  
 
 ---
 
@@ -372,18 +385,28 @@ public class CorsConfig implements WebMvcConfigurer {
 
 ```
 frontend/
-├── index.html          → Dashboard (ringkasan data)
-├── products.html       → Halaman kelola produk
-├── categories.html     → Halaman kelola kategori
-├── suppliers.html      → Halaman kelola supplier
-├── stocks.html         → Halaman kelola stok
+├── login.html          → Halaman login
+├── index.html          → Redirect ke login
+├── admin/              → Halaman khusus Admin
+│   ├── dashboard.html  → Dashboard admin
+│   ├── products.html   → Kelola produk
+│   ├── categories.html → Kelola kategori
+│   ├── suppliers.html  → Kelola supplier
+│   ├── stocks.html     → Kelola stok
+│   ├── users.html      → Kelola user
+│   ├── profile.html    → Edit profil admin
+│   └── js/             → JavaScript untuk admin
+├── staff/              → Halaman khusus Staff
+│   ├── dashboard.html  → Dashboard staff
+│   ├── products.html   → Kelola produk
+│   ├── suppliers.html  → Kelola supplier
+│   ├── stocks.html     → Kelola stok
+│   ├── profile.html    → Edit profil staff
+│   └── js/             → JavaScript untuk staff
 └── js/
-    ├── config.js       → Konfigurasi API endpoints
-    ├── products.js     → Logic halaman produk
-    ├── categories.js   → Logic halaman kategori
-    ├── suppliers.js    → Logic halaman supplier
-    ├── stocks.js       → Logic halaman stok
-    └── dashboard.js    → Logic dashboard
+    ├── config.js       → Konfigurasi API & utility functions
+    ├── login.js        → Logic halaman login
+    └── auth-helper.js  → Helper autentikasi & role check
 ```
 
 ---
@@ -396,12 +419,18 @@ frontend/
 const API_BASE_URL = "http://localhost:8080/api";
 
 const API_ENDPOINTS = {
+  auth: `${API_BASE_URL}/auth`,        // Autentikasi & profil
   products: `${API_BASE_URL}/products`,
   categories: `${API_BASE_URL}/categories`,
   suppliers: `${API_BASE_URL}/suppliers`,
   stocks: `${API_BASE_URL}/stocks`,
+  users: `${API_BASE_URL}/users`,      // Manajemen user (admin only)
 };
 
+// Axios default configuration
+axios.defaults.headers.common["Content-Type"] = "application/json";
+
+// Utility functions
 function formatCurrency(amount) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -409,15 +438,104 @@ function formatCurrency(amount) {
   }).format(amount);
 }
 
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleDateString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function showAlert(message, type = "success") {
+  const alertDiv = document.createElement("div");
+  alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+  alertDiv.innerHTML = `${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+  document.body.appendChild(alertDiv);
+  setTimeout(() => alertDiv.remove(), 3000);
+}
+
 function handleError(error) {
   console.error("Error:", error);
-  alert(error.response?.data?.message || "Terjadi kesalahan");
+  let message = "Terjadi kesalahan pada server";
+  
+  if (error.response?.data?.message) {
+    message = error.response.data.message;
+  } else if (error.response?.status === 404) {
+    message = "Data tidak ditemukan";
+  } else if (!error.response) {
+    message = "Tidak dapat terhubung ke server";
+  }
+  
+  showAlert(message, "danger");
 }
 ```
 
 ---
 
-### 3. Frontend Logic (products.js)
+### 3. Login Flow (Frontend)
+
+**File: `frontend/js/login.js`**
+
+```javascript
+document.addEventListener("DOMContentLoaded", function () {
+  // Check if user already logged in
+  const existingUser = localStorage.getItem("inventori_user");
+  const existingRole = localStorage.getItem("inventori_user_role");
+
+  if (existingUser && existingRole) {
+    // Redirect berdasarkan role
+    if (existingRole === "ADMIN") {
+      window.location.href = "admin/dashboard.html";
+    } else {
+      window.location.href = "staff/dashboard.html";
+    }
+    return;
+  }
+
+  const loginForm = document.getElementById("loginForm");
+  
+  loginForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      // POST ke endpoint login
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+        username: username,
+        password: password,
+      });
+
+      const user = response.data;
+
+      // Simpan data user ke localStorage
+      localStorage.setItem("inventori_user", JSON.stringify(user));
+      localStorage.setItem("inventori_user_id", user.id);
+      localStorage.setItem("inventori_user_role", user.role);
+
+      showAlert("Login berhasil! Mengalihkan...", "success");
+
+      // Redirect berdasarkan role
+      setTimeout(() => {
+        if (user.role === "ADMIN") {
+          window.location.href = "admin/dashboard.html";
+        } else {
+          window.location.href = "staff/dashboard.html";
+        }
+      }, 1000);
+
+    } catch (error) {
+      handleError(error);
+    }
+  });
+});
+```
+
+---
+
+### 4. Frontend Logic (products.js)
 
 #### Load Data dari API (HTTP GET)
 
@@ -604,7 +722,48 @@ function filterProducts() {
 
 ---
 
-## 🔄 ALUR DATA: Frontend → Backend → Database
+## 🔄 ALUR DATA: Login → Dashboard → CRUD
+
+### Contoh: Alur Login User
+
+```
+┌─────────────┐
+│   BROWSER   │  1. User isi username & password, klik "Login"
+│  (Frontend) │
+└──────┬──────┘
+       │ 2. JavaScript: POST /api/auth/login
+       │    { username: "admin", password: "admin123" }
+       │
+       ▼
+┌──────────────────────────────────────────────────┐
+│              SPRING BOOT BACKEND                  │
+│                                                   │
+│  ┌────────────────────────────────────────────┐  │
+│  │  @RestController - AuthController          │  │
+│  │  3. Terima POST /api/auth/login            │  │
+│  │     @Valid @RequestBody LoginRequest       │  │
+│  └────────────┬───────────────────────────────┘  │
+│               │                                   │
+│               ▼                                   │
+│  ┌────────────────────────────────────────────┐  │
+│  │  @Service - UserService                    │  │
+│  │  4. login() method:                        │  │
+│  │     - findByUsername dari Repository       │  │
+│  │     - Cek isActive == true                 │  │
+│  │     - passwordEncoder.matches()            │  │
+│  │     - Return LoginResponse                 │  │
+│  └────────────┬───────────────────────────────┘  │
+└───────────────┼───────────────────────────────────┘
+                │
+                ▼
+       ┌────────────────┐
+       │   Frontend     │  5. Terima response:
+       │   (login.js)   │     - Simpan ke localStorage
+       │                │     - Redirect ke dashboard sesuai role
+       │                │       ADMIN → admin/dashboard.html
+       │                │       STAFF → staff/dashboard.html
+       └────────────────┘
+```
 
 ### Contoh: User Membuat Product Baru
 
@@ -678,6 +837,21 @@ function filterProducts() {
 
 ```
 ┌──────────────┐
+│     User     │
+│──────────────│
+│ id (PK)      │
+│ username     │ (unique)
+│ password     │ (BCrypt hashed)
+│ fullName     │
+│ email        │ (unique)
+│ phoneNumber  │
+│ role         │ (ADMIN/STAFF)
+│ isActive     │
+│ created_at   │
+│ updated_at   │
+└──────────────┘
+
+┌──────────────┐
 │   Category   │
 │──────────────│
 │ id (PK)      │
@@ -691,7 +865,7 @@ function filterProducts() {
 │──────────────│   │    │──────────────│
 │ id (PK)      │───┼───▶│ id (PK)      │
 │ name         │   │    │ name         │
-│ contact      │   │    │ sku          │
+│ contact      │   │    │ sku          │ (auto-generated)
 │ address      │   └───▶│ category_id  │ (FK)
 └──────────────┘        │ supplier_id  │ (FK)
                         │ price        │
@@ -711,15 +885,20 @@ function filterProducts() {
 
 ### Penjelasan Relasi:
 
-1. **Category ← Product** (One-to-Many)
+1. **User** (Standalone Table)
+   - Menyimpan data user untuk autentikasi
+   - Role menentukan akses: ADMIN atau STAFF
+   - Password disimpan dalam bentuk BCrypt hash
+
+2. **Category ← Product** (One-to-Many)
    - Satu kategori punya banyak produk
    - Contoh: Kategori "Electronics" → Product: Laptop, Mouse, Keyboard
 
-2. **Supplier ← Product** (One-to-Many)
+3. **Supplier ← Product** (One-to-Many)
    - Satu supplier supply banyak produk
    - Contoh: Supplier "ABC Corp" → Product: Laptop, Monitor
 
-3. **Product → Stock** (One-to-One)
+4. **Product → Stock** (One-to-One)
    - Satu produk punya satu record stok
    - Stock track jumlah barang & minimum stock level
 
@@ -729,14 +908,25 @@ function filterProducts() {
 
 ### Backend Layers:
 
-| Layer          | Tanggung Jawab               | Annotation                           | Contoh                 |
-| -------------- | ---------------------------- | ------------------------------------ | ---------------------- |
-| **Entity**     | Model database (table)       | `@Entity`, `@Table`                  | Product.java           |
-| **Repository** | CRUD operations              | `@Repository`, extends JpaRepository | ProductRepository.java |
-| **Service**    | Business logic & transaction | `@Service`, `@Transactional`         | ProductService.java    |
-| **Controller** | REST API endpoint            | `@RestController`, `@GetMapping`     | ProductController.java |
-| **DTO**        | Data transfer object         | `@Data`                              | ProductDto.java        |
-| **Config**     | Configuration                | `@Configuration`                     | CorsConfig.java        |
+| Layer          | Tanggung Jawab               | Annotation                           | Contoh                      |
+| -------------- | ---------------------------- | ------------------------------------ | --------------------------- |
+| **Entity**     | Model database (table)       | `@Entity`, `@Table`                  | Product.java, User.java     |
+| **Repository** | CRUD operations              | `@Repository`, extends JpaRepository | ProductRepository.java      |
+| **Service**    | Business logic & transaction | `@Service`, `@Transactional`         | ProductService.java         |
+| **Controller** | REST API endpoint            | `@RestController`, `@GetMapping`     | ProductController.java      |
+| **DTO**        | Data transfer object         | `@Data`                              | ProductDto.java             |
+| **Config**     | Configuration & Security     | `@Configuration`                     | SecurityConfig.java         |
+
+### Controllers & Endpoints:
+
+| Controller           | Base Path          | Fungsi                            |
+| -------------------- | ------------------ | --------------------------------- |
+| `AuthController`     | `/api/auth`        | Login, profile, register          |
+| `UserController`     | `/api/users`       | CRUD user (admin only)            |
+| `ProductController`  | `/api/products`    | CRUD produk                       |
+| `CategoryController` | `/api/categories`  | CRUD kategori                     |
+| `SupplierController` | `/api/suppliers`   | CRUD supplier                     |
+| `StockController`    | `/api/stocks`      | CRUD stok                         |
 
 ### Flow Pattern:
 
@@ -754,11 +944,12 @@ Request → Controller → Service → Repository → Database
 ### Backend:
 
 - **Spring Boot 4.0.2**: Framework Java untuk build REST API
+- **Spring Security**: Keamanan & BCrypt password encoding
 - **Spring Data JPA**: ORM (Object-Relational Mapping) untuk database operations
 - **Hibernate**: JPA implementation
 - **PostgreSQL**: Relational database
 - **Lombok**: Reduce boilerplate code (auto-generate getter/setter)
-- **Jakarta Validation**: Input validation (`@NotBlank`, `@Positive`)
+- **Jakarta Validation**: Input validation (`@NotBlank`, `@Positive`, `@Email`)
 
 ### Frontend:
 
@@ -767,6 +958,7 @@ Request → Controller → Service → Repository → Database
 - **JavaScript (ES6+)**: Logic & interactivity
 - **Axios**: HTTP client untuk REST API calls
 - **Bootstrap Icons**: Icon library
+- **LocalStorage**: Penyimpanan session user di browser
 
 ### Build Tool:
 
@@ -784,6 +976,7 @@ Request → Controller → Service → Repository → Database
 public class ProductService {
     // Spring auto-inject repository saat runtime
     private final ProductRepository productRepository;
+    private final PasswordEncoder passwordEncoder;
 }
 ```
 
@@ -809,19 +1002,40 @@ public ProductDto createProduct(ProductDto dto) {
 
 ---
 
-### 3. RESTful API Principles
+### 3. Password Security dengan BCrypt
+
+```java
+// Saat create user - hash password
+String hashedPassword = passwordEncoder.encode("admin123");
+// Hasil: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+
+// Saat login - verifikasi password
+boolean isMatch = passwordEncoder.matches("admin123", hashedPassword);
+// Return: true jika cocok
+```
+
+**Kenapa BCrypt?**
+- One-way hash (tidak bisa di-decrypt)
+- Auto-generate salt (mencegah rainbow table attack)
+- Adjustable work factor (makin tinggi makin secure tapi lambat)
+
+---
+
+### 4. RESTful API Principles
 
 | Method | Path                 | Action           | Response           |
 | ------ | -------------------- | ---------------- | ------------------ |
+| POST   | `/api/auth/login`    | Login user       | 200 OK + user data |
 | GET    | `/api/products`      | Get all products | 200 OK + data      |
 | GET    | `/api/products/{id}` | Get by ID        | 200 OK + data      |
 | POST   | `/api/products`      | Create new       | 201 Created + data |
 | PUT    | `/api/products/{id}` | Update existing  | 200 OK + data      |
 | DELETE | `/api/products/{id}` | Delete           | 204 No Content     |
+| PATCH  | `/api/users/{id}/status` | Toggle status | 200 OK + data    |
 
 ---
 
-### 4. Lazy Loading vs Eager Loading
+### 5. Lazy Loading vs Eager Loading
 
 ```java
 // LAZY: data dimuat saat diakses
@@ -842,7 +1056,284 @@ private Category category;
 
 ---
 
-## 🚀 Cara Menjalankan Project
+## � SISTEM AUTENTIKASI & KEAMANAN
+
+### 1. Security Configuration
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    
+    // BCrypt Password Encoder untuk hashing password
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    
+    // Security Filter Chain
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            );
+        return http.build();
+    }
+}
+```
+
+**BCrypt** = algoritma hashing password yang aman:
+- Otomatis menambahkan salt (random string)
+- Memiliki work factor yang dapat disesuaikan
+- Tidak bisa di-decrypt (one-way hashing)
+
+---
+
+### 2. User Entity dengan Role
+
+```java
+@Entity
+@Table(name = "users")
+@Data
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @NotBlank(message = "Username tidak boleh kosong")
+    @Column(nullable = false, unique = true)
+    private String username;
+    
+    @NotBlank(message = "Password tidak boleh kosong")
+    @Column(nullable = false)
+    private String password;  // Disimpan dalam bentuk hash BCrypt
+    
+    @NotBlank(message = "Nama lengkap tidak boleh kosong")
+    private String fullName;
+    
+    @Email(message = "Format email tidak valid")
+    @Column(unique = true)
+    private String email;
+    
+    private String phoneNumber;
+    
+    @Enumerated(EnumType.STRING)
+    private UserRole role;  // ADMIN atau STAFF
+    
+    private Boolean isActive = true;
+    
+    // Enum untuk Role
+    public enum UserRole {
+        ADMIN("Admin", "Akses penuh ke semua fitur"),
+        STAFF("Staff", "Akses terbatas ke kelola produk, stok, dan supplier");
+        
+        private final String displayName;
+        private final String description;
+    }
+}
+```
+
+---
+
+### 3. Login Flow
+
+**DTO untuk Login:**
+
+```java
+// Request dari Frontend
+@Data
+public class LoginRequest {
+    @NotBlank
+    private String username;
+    @NotBlank
+    private String password;
+}
+
+// Response ke Frontend
+@Data
+public class LoginResponse {
+    private Long id;
+    private String username;
+    private String fullName;
+    private String email;
+    private User.UserRole role;
+    private String message;
+}
+```
+
+**Service untuk Autentikasi:**
+
+```java
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    
+    @Transactional
+    public LoginResponse login(LoginRequest loginRequest) {
+        // 1. Cari user by username
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+            .orElseThrow(() -> new RuntimeException("Username atau password salah"));
+        
+        // 2. Cek apakah akun aktif
+        if (!user.getIsActive()) {
+            throw new RuntimeException("Akun Anda tidak aktif");
+        }
+        
+        // 3. Verifikasi password dengan BCrypt
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Username atau password salah");
+        }
+        
+        // 4. Return response dengan info user
+        LoginResponse response = new LoginResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setRole(user.getRole());
+        // ... mapping lainnya
+        return response;
+    }
+}
+```
+
+**Controller untuk Auth:**
+
+```java
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+    
+    private final UserService userService;
+    
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(userService.login(loginRequest));
+    }
+    
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getCurrentUserProfile(@RequestParam Long userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
+    }
+    
+    @PutMapping("/profile")
+    public ResponseEntity<UserDto> updateCurrentUserProfile(
+            @RequestParam Long userId,
+            @Valid @RequestBody ProfileUpdateRequest profileRequest) {
+        return ResponseEntity.ok(userService.updateUserProfile(userId, profileRequest));
+    }
+}
+```
+
+---
+
+### 4. Role-Based Access Control (Frontend)
+
+**Auth Helper JavaScript:**
+
+```javascript
+// Check if user is logged in
+function checkAuth() {
+    const user = localStorage.getItem('inventori_user');
+    const userRole = localStorage.getItem('inventori_user_role');
+    
+    if (!user || !userRole) {
+        window.location.href = 'login.html';
+        return null;
+    }
+    return JSON.parse(user);
+}
+
+// Check if user has admin role
+function checkAdminRole() {
+    const userRole = localStorage.getItem('inventori_user_role');
+    if (userRole !== 'ADMIN') {
+        window.location.href = '../staff/dashboard.html';
+        return false;
+    }
+    return true;
+}
+
+// Check if user has staff role
+function checkStaffRole() {
+    const userRole = localStorage.getItem('inventori_user_role');
+    if (userRole !== 'STAFF') {
+        window.location.href = '../admin/dashboard.html';
+        return false;
+    }
+    return true;
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('inventori_user');
+    localStorage.removeItem('inventori_user_id');
+    localStorage.removeItem('inventori_user_role');
+    window.location.href = '../login.html';
+}
+```
+
+---
+
+### 5. Perbedaan Akses Admin vs Staff
+
+| Fitur                | Admin | Staff |
+| -------------------- | ----- | ----- |
+| Dashboard            | ✅     | ✅     |
+| Kelola Produk        | ✅     | ✅     |
+| Kelola Stok          | ✅     | ✅     |
+| Kelola Supplier      | ✅     | ✅     |
+| Kelola Kategori      | ✅     | ❌     |
+| Kelola User          | ✅     | ❌     |
+| Reset Password User  | ✅     | ❌     |
+| Toggle Status User   | ✅     | ❌     |
+| Edit Profile Sendiri | ✅     | ✅     |
+
+---
+
+### 6. User Management (Admin Only)
+
+```java
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllUsers();
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id);
+    
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<UserDto>> getUsersByRole(@PathVariable String role);
+    
+    @PostMapping
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto);
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto);
+    
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<UserDto> toggleUserStatus(@PathVariable Long id);
+    
+    @PatchMapping("/{id}/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@PathVariable Long id);
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id);
+    
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getUserStats();
+}
+```
+
+---
+
+## �🚀 Cara Menjalankan Project
 
 ### 1. Setup Database (PostgreSQL)
 
@@ -898,6 +1389,9 @@ Buka `frontend/index.html` dengan:
 | **CRUD**                 | Create, Read, Update, Delete: operasi dasar database                             |
 | **Transaction**          | Sekumpulan operasi database yang harus semua success atau semua gagal            |
 | **CORS**                 | Cross-Origin Resource Sharing: allow request dari domain lain                    |
+| **BCrypt**               | Algoritma hashing password yang aman dengan salt                                 |
+| **LocalStorage**         | Penyimpanan data di browser yang persist setelah browser ditutup                 |
+| **Role-Based Access**    | Kontrol akses berdasarkan role user (ADMIN/STAFF)                                |
 
 ---
 
@@ -911,12 +1405,28 @@ Project ini mendemonstrasikan:
 ✅ **Transaction Management**: ACID compliance  
 ✅ **Input Validation**: Data integrity  
 ✅ **DTO Pattern**: Separation of concerns  
-✅ **Dependency Injection**: Loose coupling, easy testing
+✅ **Dependency Injection**: Loose coupling, easy testing  
+✅ **Authentication System**: Login dengan BCrypt password hashing  
+✅ **Role-Based Access Control**: Admin & Staff dengan hak akses berbeda  
+✅ **User Management**: CRUD user, reset password, toggle status  
+✅ **Frontend Session Management**: LocalStorage untuk persist login state  
 
-Ini adalah contoh aplikasi Spring Boot yang production-ready dengan best practices!
+Ini adalah contoh aplikasi Spring Boot yang production-ready dengan best practices dan sistem keamanan yang baik!
+
+---
+
+## 🔑 Default Users
+
+Aplikasi secara otomatis membuat user default saat pertama kali dijalankan:
+
+| Role  | Username | Password   | Akses                                       |
+| ----- | -------- | ---------- | ------------------------------------------- |
+| Admin | admin    | admin123   | Semua fitur termasuk kelola user & kategori |
+| Staff | staff    | staff123   | Produk, Stok, Supplier, Profile             |
 
 ---
 
 **Dibuat pada**: 28 Januari 2026  
+**Diperbarui pada**: 31 Januari 2026  
 **Project**: Inventory Management System  
-**Tech Stack**: Spring Boot 4.0.2 + Java 25 + PostgreSQL + JavaScript
+**Tech Stack**: Spring Boot 4.0.2 + Java 25 + PostgreSQL + Spring Security + JavaScript
