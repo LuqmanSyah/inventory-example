@@ -161,7 +161,6 @@ async function openAdjustModal(productId, type) {
     document.getElementById("adjustProductName").value = stock.productName;
     document.getElementById("adjustCurrentQuantity").value = stock.quantity;
     document.getElementById("adjustQuantity").value = "";
-    document.getElementById("adjustReason").value = "";
 
     const header = document.getElementById("adjustModalHeader");
     const title = document.getElementById("adjustModalTitle");
@@ -190,7 +189,6 @@ async function saveStockAdjustment() {
   const productId = document.getElementById("adjustProductId").value;
   const type = document.getElementById("adjustType").value;
   const quantity = parseInt(document.getElementById("adjustQuantity").value);
-  const reason = document.getElementById("adjustReason").value;
 
   if (!quantity || quantity <= 0) {
     showAlert("Please enter a valid quantity", "danger");
