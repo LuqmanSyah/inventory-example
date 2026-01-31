@@ -193,4 +193,62 @@ POST /api/stocks/product/1/reduce
 - Implementasi transaction history
 - Tambahkan unit testing
 
+## 🧪 Testing
+
+### White Box Testing
+
+Project ini sudah dilengkapi dengan **White Box Testing** yang komprehensif menggunakan JUnit 5 dan Mockito.
+
+#### Struktur Test Files
+
+| File                       | Deskripsi               | Jumlah Tests |
+| -------------------------- | ----------------------- | ------------ |
+| `StockTest.java`           | Entity Stock testing    | 21 tests     |
+| `ProductServiceTest.java`  | ProductService testing  | 21 tests     |
+| `UserServiceTest.java`     | UserService testing     | 22 tests     |
+| `StockServiceTest.java`    | StockService testing    | 25 tests     |
+| `CategoryServiceTest.java` | CategoryService testing | 17 tests     |
+
+#### Teknik Testing yang Digunakan
+
+1. **Statement Coverage** - Memastikan setiap statement dieksekusi minimal sekali
+2. **Branch Coverage** - Menguji setiap cabang kondisi (if/else)
+3. **Path Coverage** - Menguji semua jalur eksekusi yang mungkin
+4. **Condition Coverage** - Menguji setiap kondisi boolean
+5. **Boundary Value Analysis** - Menguji nilai batas
+6. **Exception Testing** - Menguji penanganan exception
+
+#### Menjalankan Tests
+
+```bash
+# Jalankan semua tests
+./mvnw test
+
+# Jalankan test class tertentu
+./mvnw test -Dtest="StockTest"
+./mvnw test -Dtest="ProductServiceTest"
+./mvnw test -Dtest="UserServiceTest"
+./mvnw test -Dtest="StockServiceTest"
+./mvnw test -Dtest="CategoryServiceTest"
+
+# Jalankan multiple test classes
+./mvnw test -Dtest="StockTest,CategoryServiceTest"
+
+# Jalankan test dengan output verbose
+./mvnw test -Dsurefire.useFile=false
+```
+
+#### Contoh Output Test
+
+```
+[INFO] Tests run: 107, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+```
+
+#### Teknologi Testing
+
+- **JUnit 5** - Framework testing utama
+- **Mockito** - Mocking dependencies untuk unit testing
+- **H2 Database** - In-memory database untuk testing (opsional)
+
 Selamat belajar! 🎉
