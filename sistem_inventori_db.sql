@@ -12,7 +12,7 @@
  Target Server Version : 170007 (170007)
  File Encoding         : 65001
 
- Date: 01/02/2026 00:19:02
+ Date: 01/02/2026 10:24:56
 */
 
 
@@ -93,16 +93,16 @@ CACHE 1
 -- ----------------------------
 -- Records of categories
 -- ----------------------------
-INSERT INTO "public"."categories" VALUES (1, '2026-01-31 23:43:47.780522', 'Peralatan dan komponen elektronik', 'Elektronik', '2026-01-31 23:43:47.780522');
-INSERT INTO "public"."categories" VALUES (2, '2026-01-31 23:43:47.792449', 'Komputer, laptop, dan aksesori', 'Komputer & Laptop', '2026-01-31 23:43:47.792449');
-INSERT INTO "public"."categories" VALUES (3, '2026-01-31 23:43:47.794959', 'Smartphone, tablet, dan aksesori', 'Smartphone & Tablet', '2026-01-31 23:43:47.794959');
-INSERT INTO "public"."categories" VALUES (4, '2026-01-31 23:43:47.79717', 'ATK dan peralatan kantor', 'Peralatan Kantor', '2026-01-31 23:43:47.79717');
-INSERT INTO "public"."categories" VALUES (5, '2026-01-31 23:43:47.799171', 'Meja, kursi, dan furniture kantor', 'Furniture', '2026-01-31 23:43:47.799171');
-INSERT INTO "public"."categories" VALUES (6, '2026-01-31 23:43:47.80217', 'Router, switch, dan peralatan jaringan', 'Networking', '2026-01-31 23:43:47.80217');
-INSERT INTO "public"."categories" VALUES (7, '2026-01-31 23:43:47.804175', 'Speaker, headphone, kamera, proyektor', 'Audio & Video', '2026-01-31 23:43:47.804175');
-INSERT INTO "public"."categories" VALUES (8, '2026-01-31 23:43:47.806204', 'Console, controller, dan aksesori gaming', 'Gaming', '2026-01-31 23:43:47.806204');
-INSERT INTO "public"."categories" VALUES (9, '2026-01-31 23:43:47.80821', 'Berbagai aksesoris teknologi', 'Aksesoris', '2026-01-31 23:43:47.80821');
-INSERT INTO "public"."categories" VALUES (10, '2026-01-31 23:43:47.810207', 'Software dan lisensi', 'Software', '2026-01-31 23:43:47.810207');
+INSERT INTO "public"."categories" VALUES (1, '2026-02-01 10:21:25.238716', 'Peralatan dan komponen elektronik', 'Elektronik', '2026-02-01 10:21:25.238716');
+INSERT INTO "public"."categories" VALUES (2, '2026-02-01 10:21:25.248226', 'Komputer, laptop, dan aksesori', 'Komputer & Laptop', '2026-02-01 10:21:25.248226');
+INSERT INTO "public"."categories" VALUES (3, '2026-02-01 10:21:25.250225', 'Smartphone, tablet, dan aksesori', 'Smartphone & Tablet', '2026-02-01 10:21:25.250225');
+INSERT INTO "public"."categories" VALUES (4, '2026-02-01 10:21:25.252226', 'ATK dan peralatan kantor', 'Peralatan Kantor', '2026-02-01 10:21:25.252226');
+INSERT INTO "public"."categories" VALUES (5, '2026-02-01 10:21:25.253228', 'Meja, kursi, dan furniture kantor', 'Furniture', '2026-02-01 10:21:25.253228');
+INSERT INTO "public"."categories" VALUES (6, '2026-02-01 10:21:25.255738', 'Router, switch, dan peralatan jaringan', 'Networking', '2026-02-01 10:21:25.255738');
+INSERT INTO "public"."categories" VALUES (7, '2026-02-01 10:21:25.257737', 'Speaker, headphone, kamera, proyektor', 'Audio & Video', '2026-02-01 10:21:25.257737');
+INSERT INTO "public"."categories" VALUES (8, '2026-02-01 10:21:25.258738', 'Console, controller, dan aksesori gaming', 'Gaming', '2026-02-01 10:21:25.258738');
+INSERT INTO "public"."categories" VALUES (9, '2026-02-01 10:21:25.262248', 'Berbagai aksesoris teknologi', 'Aksesoris', '2026-02-01 10:21:25.262248');
+INSERT INTO "public"."categories" VALUES (10, '2026-02-01 10:21:25.264247', 'Software dan lisensi', 'Software', '2026-02-01 10:21:25.264247');
 
 -- ----------------------------
 -- Table structure for products
@@ -130,31 +130,31 @@ CACHE 1
 -- ----------------------------
 -- Records of products
 -- ----------------------------
-INSERT INTO "public"."products" VALUES (1, '2026-01-31 23:43:47.872538', 'Laptop premium dengan Intel Core i7, 16GB RAM, 512GB SSD', 'Laptop Dell XPS 13', 18500000.00, 'PRD-1769877827872', '2026-01-31 23:43:47.872538', 2, 1);
-INSERT INTO "public"."products" VALUES (2, '2026-01-31 23:43:47.891612', 'Gaming laptop dengan RTX 3060, Intel Core i7, 16GB RAM', 'Laptop ASUS ROG', 22000000.00, 'PRD-1769877827891', '2026-01-31 23:43:47.891612', 2, 1);
-INSERT INTO "public"."products" VALUES (3, '2026-01-31 23:43:47.908658', 'MacBook Pro M2 Pro, 16GB RAM, 512GB SSD', 'MacBook Pro 14"', 32000000.00, 'PRD-1769877827908', '2026-01-31 23:43:47.908658', 2, 1);
-INSERT INTO "public"."products" VALUES (4, '2026-01-31 23:43:47.922696', 'iPhone 14 Pro 256GB, Deep Purple', 'iPhone 14 Pro', 18999000.00, 'PRD-1769877827922', '2026-01-31 23:43:47.922696', 3, 1);
-INSERT INTO "public"."products" VALUES (5, '2026-01-31 23:43:47.938285', 'Samsung Galaxy S23 256GB, Phantom Black', 'Samsung Galaxy S23', 13999000.00, 'PRD-1769877827938', '2026-01-31 23:43:47.938285', 3, 1);
-INSERT INTO "public"."products" VALUES (6, '2026-01-31 23:43:47.951316', 'iPad Pro 11" M2, 256GB, WiFi', 'iPad Pro 11"', 15999000.00, 'PRD-1769877827951', '2026-01-31 23:43:47.951316', 3, 1);
-INSERT INTO "public"."products" VALUES (7, '2026-01-31 23:43:47.962342', 'WiFi 6 Router dengan kecepatan hingga 5400Mbps', 'Router TP-Link AX5400', 1850000.00, 'PRD-1769877827962', '2026-01-31 23:43:47.962342', 6, 1);
-INSERT INTO "public"."products" VALUES (8, '2026-01-31 23:43:47.970363', 'Managed Switch 24 Port Gigabit', 'Switch Cisco 24 Port', 8500000.00, 'PRD-1769877827970', '2026-01-31 23:43:47.970363', 6, 1);
-INSERT INTO "public"."products" VALUES (9, '2026-01-31 23:43:47.979955', 'UniFi AP AC Pro dengan PoE', 'Access Point Ubiquiti', 2100000.00, 'PRD-1769877827979', '2026-01-31 23:43:47.979955', 6, 1);
-INSERT INTO "public"."products" VALUES (10, '2026-01-31 23:43:47.98947', 'Noise Cancelling Headphone Premium', 'Sony WH-1000XM5', 5499000.00, 'PRD-1769877827989', '2026-01-31 23:43:47.98947', 7, 1);
-INSERT INTO "public"."products" VALUES (11, '2026-01-31 23:43:47.998442', 'Webcam 4K Ultra HD dengan HDR', 'Logitech Brio 4K', 3200000.00, 'PRD-1769877827998', '2026-01-31 23:43:47.998442', 7, 1);
-INSERT INTO "public"."products" VALUES (12, '2026-01-31 23:43:48.007467', 'Portable Bluetooth Speaker Waterproof', 'JBL Flip 6', 1899000.00, 'PRD-1769877828007', '2026-01-31 23:43:48.007467', 7, 1);
-INSERT INTO "public"."products" VALUES (13, '2026-01-31 23:43:48.015989', 'Monitor IPS 27" 4K UHD', 'Monitor LG 27"', 4500000.00, 'PRD-1769877828015', '2026-01-31 23:43:48.015989', 4, 1);
-INSERT INTO "public"."products" VALUES (14, '2026-01-31 23:43:48.024007', 'Logitech MX Mechanical Wireless', 'Keyboard Mechanical', 2100000.00, 'PRD-1769877828024', '2026-01-31 23:43:48.024007', 4, 1);
-INSERT INTO "public"."products" VALUES (15, '2026-01-31 23:43:48.031257', 'Wireless Mouse untuk profesional', 'Mouse Logitech MX Master 3S', 1450000.00, 'PRD-1769877828031', '2026-01-31 23:43:48.031257', 4, 1);
-INSERT INTO "public"."products" VALUES (16, '2026-01-31 23:43:48.036973', 'Console gaming Sony PS5 dengan Blu-ray drive', 'PlayStation 5', 7999000.00, 'PRD-1769877828036', '2026-01-31 23:43:48.036973', 8, 1);
-INSERT INTO "public"."products" VALUES (17, '2026-01-31 23:43:48.043974', 'Console gaming Microsoft Xbox Series X', 'Xbox Series X', 7499000.00, 'PRD-1769877828043', '2026-01-31 23:43:48.043974', 8, 1);
-INSERT INTO "public"."products" VALUES (18, '2026-01-31 23:43:48.050482', 'Portable Gaming PC 512GB', 'Steam Deck', 8999000.00, 'PRD-1769877828050', '2026-01-31 23:43:48.050482', 8, 1);
-INSERT INTO "public"."products" VALUES (19, '2026-01-31 23:43:48.055995', 'Kursi gaming ergonomis dengan lumbar support', 'Kursi Gaming DXRacer', 4500000.00, 'PRD-1769877828055', '2026-01-31 23:43:48.055995', 5, 1);
-INSERT INTO "public"."products" VALUES (20, '2026-01-31 23:43:48.061978', 'Meja kerja adjustable elektrik', 'Meja Standing Desk', 6500000.00, 'PRD-1769877828061', '2026-01-31 23:43:48.061978', 5, 1);
-INSERT INTO "public"."products" VALUES (21, '2026-01-31 23:43:48.067094', 'Anker USB-C Hub dengan HDMI, USB 3.0, SD Card', 'USB-C Hub 7-in-1', 650000.00, 'PRD-1769877828067', '2026-01-31 23:43:48.067094', 9, 1);
-INSERT INTO "public"."products" VALUES (22, '2026-01-31 23:43:48.07388', 'Anker Power Bank dengan fast charging', 'Power Bank 20000mAh', 550000.00, 'PRD-1769877828073', '2026-01-31 23:43:48.07388', 9, 1);
-INSERT INTO "public"."products" VALUES (23, '2026-01-31 23:43:48.078339', 'Kabel charging USB-C 2 meter', 'Charging Cable USB-C', 150000.00, 'PRD-1769877828078', '2026-01-31 23:43:48.078339', 9, 1);
-INSERT INTO "public"."products" VALUES (24, '2026-01-31 23:43:48.083846', 'Samsung 980 Pro NVMe SSD 1TB', 'SSD Samsung 1TB', 2100000.00, 'PRD-1769877828083', '2026-01-31 23:43:48.083846', 1, 1);
-INSERT INTO "public"."products" VALUES (25, '2026-01-31 23:43:48.089016', 'Corsair Vengeance 16GB DDR4 3200MHz', 'RAM DDR4 16GB', 950000.00, 'PRD-1769877828089', '2026-01-31 23:43:48.089016', 1, 1);
+INSERT INTO "public"."products" VALUES (1, '2026-02-01 10:21:25.336566', 'Laptop premium dengan Intel Core i7, 16GB RAM, 512GB SSD', 'Laptop Dell XPS 13', 18500000.00, 'PRD-1769916085336', '2026-02-01 10:21:25.336566', 2, 1);
+INSERT INTO "public"."products" VALUES (2, '2026-02-01 10:21:25.357619', 'Gaming laptop dengan RTX 3060, Intel Core i7, 16GB RAM', 'Laptop ASUS ROG', 22000000.00, 'PRD-1769916085357', '2026-02-01 10:21:25.357619', 2, 1);
+INSERT INTO "public"."products" VALUES (3, '2026-02-01 10:21:25.371658', 'MacBook Pro M2 Pro, 16GB RAM, 512GB SSD', 'MacBook Pro 14"', 32000000.00, 'PRD-1769916085371', '2026-02-01 10:21:25.371658', 2, 1);
+INSERT INTO "public"."products" VALUES (4, '2026-02-01 10:21:25.383176', 'iPhone 14 Pro 256GB, Deep Purple', 'iPhone 14 Pro', 18999000.00, 'PRD-1769916085383', '2026-02-01 10:21:25.383176', 3, 1);
+INSERT INTO "public"."products" VALUES (5, '2026-02-01 10:21:25.393699', 'Samsung Galaxy S23 256GB, Phantom Black', 'Samsung Galaxy S23', 13999000.00, 'PRD-1769916085393', '2026-02-01 10:21:25.393699', 3, 1);
+INSERT INTO "public"."products" VALUES (6, '2026-02-01 10:21:25.406216', 'iPad Pro 11" M2, 256GB, WiFi', 'iPad Pro 11"', 15999000.00, 'PRD-1769916085406', '2026-02-01 10:21:25.406216', 3, 1);
+INSERT INTO "public"."products" VALUES (7, '2026-02-01 10:21:25.415728', 'WiFi 6 Router dengan kecepatan hingga 5400Mbps', 'Router TP-Link AX5400', 1850000.00, 'PRD-1769916085415', '2026-02-01 10:21:25.415728', 6, 1);
+INSERT INTO "public"."products" VALUES (8, '2026-02-01 10:21:25.422733', 'Managed Switch 24 Port Gigabit', 'Switch Cisco 24 Port', 8500000.00, 'PRD-1769916085422', '2026-02-01 10:21:25.422733', 6, 1);
+INSERT INTO "public"."products" VALUES (9, '2026-02-01 10:21:25.430729', 'UniFi AP AC Pro dengan PoE', 'Access Point Ubiquiti', 2100000.00, 'PRD-1769916085430', '2026-02-01 10:21:25.430729', 6, 1);
+INSERT INTO "public"."products" VALUES (10, '2026-02-01 10:21:25.438822', 'Noise Cancelling Headphone Premium', 'Sony WH-1000XM5', 5499000.00, 'PRD-1769916085438', '2026-02-01 10:21:25.438822', 7, 1);
+INSERT INTO "public"."products" VALUES (11, '2026-02-01 10:21:25.446331', 'Webcam 4K Ultra HD dengan HDR', 'Logitech Brio 4K', 3200000.00, 'PRD-1769916085446', '2026-02-01 10:21:25.446331', 7, 1);
+INSERT INTO "public"."products" VALUES (12, '2026-02-01 10:21:25.452336', 'Portable Bluetooth Speaker Waterproof', 'JBL Flip 6', 1899000.00, 'PRD-1769916085452', '2026-02-01 10:21:25.452336', 7, 1);
+INSERT INTO "public"."products" VALUES (13, '2026-02-01 10:21:25.459426', 'Monitor IPS 27" 4K UHD', 'Monitor LG 27"', 4500000.00, 'PRD-1769916085459', '2026-02-01 10:21:25.459426', 4, 1);
+INSERT INTO "public"."products" VALUES (14, '2026-02-01 10:21:25.467586', 'Logitech MX Mechanical Wireless', 'Keyboard Mechanical', 2100000.00, 'PRD-1769916085467', '2026-02-01 10:21:25.467586', 4, 1);
+INSERT INTO "public"."products" VALUES (15, '2026-02-01 10:21:25.473585', 'Wireless Mouse untuk profesional', 'Mouse Logitech MX Master 3S', 1450000.00, 'PRD-1769916085473', '2026-02-01 10:21:25.473585', 4, 1);
+INSERT INTO "public"."products" VALUES (16, '2026-02-01 10:21:25.480915', 'Console gaming Sony PS5 dengan Blu-ray drive', 'PlayStation 5', 7999000.00, 'PRD-1769916085480', '2026-02-01 10:21:25.480915', 8, 1);
+INSERT INTO "public"."products" VALUES (17, '2026-02-01 10:21:25.488424', 'Console gaming Microsoft Xbox Series X', 'Xbox Series X', 7499000.00, 'PRD-1769916085488', '2026-02-01 10:21:25.488424', 8, 1);
+INSERT INTO "public"."products" VALUES (18, '2026-02-01 10:21:25.494434', 'Portable Gaming PC 512GB', 'Steam Deck', 8999000.00, 'PRD-1769916085494', '2026-02-01 10:21:25.494434', 8, 1);
+INSERT INTO "public"."products" VALUES (19, '2026-02-01 10:21:25.50044', 'Kursi gaming ergonomis dengan lumbar support', 'Kursi Gaming DXRacer', 4500000.00, 'PRD-1769916085500', '2026-02-01 10:21:25.50044', 5, 1);
+INSERT INTO "public"."products" VALUES (20, '2026-02-01 10:21:25.506459', 'Meja kerja adjustable elektrik', 'Meja Standing Desk', 6500000.00, 'PRD-1769916085506', '2026-02-01 10:21:25.506459', 5, 1);
+INSERT INTO "public"."products" VALUES (21, '2026-02-01 10:21:25.51346', 'Anker USB-C Hub dengan HDMI, USB 3.0, SD Card', 'USB-C Hub 7-in-1', 650000.00, 'PRD-1769916085513', '2026-02-01 10:21:25.51346', 9, 1);
+INSERT INTO "public"."products" VALUES (22, '2026-02-01 10:21:25.520523', 'Anker Power Bank dengan fast charging', 'Power Bank 20000mAh', 550000.00, 'PRD-1769916085520', '2026-02-01 10:21:25.520523', 9, 1);
+INSERT INTO "public"."products" VALUES (23, '2026-02-01 10:21:25.530203', 'Kabel charging USB-C 2 meter', 'Charging Cable USB-C', 150000.00, 'PRD-1769916085530', '2026-02-01 10:21:25.530203', 9, 1);
+INSERT INTO "public"."products" VALUES (24, '2026-02-01 10:21:25.537724', 'Samsung 980 Pro NVMe SSD 1TB', 'SSD Samsung 1TB', 2100000.00, 'PRD-1769916085537', '2026-02-01 10:21:25.537724', 1, 1);
+INSERT INTO "public"."products" VALUES (25, '2026-02-01 10:21:25.544724', 'Corsair Vengeance 16GB DDR4 3200MHz', 'RAM DDR4 16GB', 950000.00, 'PRD-1769916085544', '2026-02-01 10:21:25.544724', 1, 1);
 
 -- ----------------------------
 -- Table structure for stocks
@@ -179,31 +179,31 @@ CACHE 1
 -- ----------------------------
 -- Records of stocks
 -- ----------------------------
-INSERT INTO "public"."stocks" VALUES (1, '2026-01-29 23:43:47.877086', 5, 15, '2026-01-31 23:43:47.877086', 1);
-INSERT INTO "public"."stocks" VALUES (2, '2026-01-22 23:43:47.89513', 3, 8, '2026-01-31 23:43:47.89513', 2);
-INSERT INTO "public"."stocks" VALUES (3, '2026-01-20 23:43:47.910657', 2, 5, '2026-01-31 23:43:47.910657', 3);
-INSERT INTO "public"."stocks" VALUES (4, '2026-01-16 23:43:47.926209', 5, 20, '2026-01-31 23:43:47.926209', 4);
-INSERT INTO "public"."stocks" VALUES (5, '2026-01-04 23:43:47.940289', 8, 25, '2026-01-31 23:43:47.941288', 5);
-INSERT INTO "public"."stocks" VALUES (6, '2026-01-26 23:43:47.95382', 3, 12, '2026-01-31 23:43:47.95382', 6);
-INSERT INTO "public"."stocks" VALUES (7, '2026-01-30 23:43:47.963848', 10, 30, '2026-01-31 23:43:47.963848', 7);
-INSERT INTO "public"."stocks" VALUES (8, '2026-01-13 23:43:47.972365', 3, 10, '2026-01-31 23:43:47.972365', 8);
-INSERT INTO "public"."stocks" VALUES (9, '2026-01-28 23:43:47.981956', 5, 18, '2026-01-31 23:43:47.981956', 9);
-INSERT INTO "public"."stocks" VALUES (10, '2026-01-02 23:43:47.991473', 8, 22, '2026-01-31 23:43:47.991473', 10);
-INSERT INTO "public"."stocks" VALUES (11, '2026-01-12 23:43:48.000442', 5, 15, '2026-01-31 23:43:48.000442', 11);
-INSERT INTO "public"."stocks" VALUES (12, '2026-01-14 23:43:48.008473', 10, 35, '2026-01-31 23:43:48.009473', 12);
-INSERT INTO "public"."stocks" VALUES (13, '2026-01-16 23:43:48.017498', 8, 20, '2026-01-31 23:43:48.017498', 13);
-INSERT INTO "public"."stocks" VALUES (14, '2026-01-14 23:43:48.025011', 10, 25, '2026-01-31 23:43:48.025011', 14);
-INSERT INTO "public"."stocks" VALUES (15, '2026-01-19 23:43:48.032258', 10, 30, '2026-01-31 23:43:48.032258', 15);
-INSERT INTO "public"."stocks" VALUES (16, '2026-01-15 23:43:48.037976', 4, 12, '2026-01-31 23:43:48.038974', 16);
-INSERT INTO "public"."stocks" VALUES (17, '2026-01-28 23:43:48.044972', 3, 10, '2026-01-31 23:43:48.045974', 17);
-INSERT INTO "public"."stocks" VALUES (18, '2026-01-24 23:43:48.051483', 2, 6, '2026-01-31 23:43:48.052485', 18);
-INSERT INTO "public"."stocks" VALUES (19, '2026-01-12 23:43:48.05739', 5, 15, '2026-01-31 23:43:48.05739', 19);
-INSERT INTO "public"."stocks" VALUES (20, '2026-01-10 23:43:48.06298', 3, 8, '2026-01-31 23:43:48.06298', 20);
-INSERT INTO "public"."stocks" VALUES (21, '2026-01-26 23:43:48.069092', 15, 50, '2026-01-31 23:43:48.069092', 21);
-INSERT INTO "public"."stocks" VALUES (22, '2026-01-17 23:43:48.07498', 20, 60, '2026-01-31 23:43:48.07498', 22);
-INSERT INTO "public"."stocks" VALUES (23, '2026-01-22 23:43:48.079339', 30, 100, '2026-01-31 23:43:48.079339', 23);
-INSERT INTO "public"."stocks" VALUES (24, '2026-01-26 23:43:48.084851', 10, 25, '2026-01-31 23:43:48.084851', 24);
-INSERT INTO "public"."stocks" VALUES (25, '2026-01-22 23:43:48.090015', 15, 40, '2026-01-31 23:43:48.090015', 25);
+INSERT INTO "public"."stocks" VALUES (1, '2026-01-30 10:21:25.341567', 5, 15, '2026-02-01 10:21:25.342566', 1);
+INSERT INTO "public"."stocks" VALUES (2, '2026-01-24 10:21:25.358618', 3, 8, '2026-02-01 10:21:25.360124', 2);
+INSERT INTO "public"."stocks" VALUES (3, '2026-01-26 10:21:25.373658', 2, 5, '2026-02-01 10:21:25.373658', 3);
+INSERT INTO "public"."stocks" VALUES (4, '2026-01-30 10:21:25.384683', 5, 20, '2026-02-01 10:21:25.385692', 4);
+INSERT INTO "public"."stocks" VALUES (5, '2026-01-25 10:21:25.396188', 8, 25, '2026-02-01 10:21:25.397188', 5);
+INSERT INTO "public"."stocks" VALUES (6, '2026-01-04 10:21:25.408217', 3, 12, '2026-02-01 10:21:25.408217', 6);
+INSERT INTO "public"."stocks" VALUES (7, '2026-01-26 10:21:25.416735', 10, 30, '2026-02-01 10:21:25.417735', 7);
+INSERT INTO "public"."stocks" VALUES (8, '2026-01-23 10:21:25.424734', 3, 10, '2026-02-01 10:21:25.424734', 8);
+INSERT INTO "public"."stocks" VALUES (9, '2026-01-05 10:21:25.431729', 5, 18, '2026-02-01 10:21:25.432729', 9);
+INSERT INTO "public"."stocks" VALUES (10, '2026-01-13 10:21:25.440821', 8, 22, '2026-02-01 10:21:25.440821', 10);
+INSERT INTO "public"."stocks" VALUES (11, '2026-01-28 10:21:25.44803', 5, 15, '2026-02-01 10:21:25.44803', 11);
+INSERT INTO "public"."stocks" VALUES (12, '2026-01-15 10:21:25.454335', 10, 35, '2026-02-01 10:21:25.454335', 12);
+INSERT INTO "public"."stocks" VALUES (13, '2026-01-03 10:21:25.460426', 8, 20, '2026-02-01 10:21:25.460426', 13);
+INSERT INTO "public"."stocks" VALUES (14, '2026-01-22 10:21:25.468585', 10, 25, '2026-02-01 10:21:25.469585', 14);
+INSERT INTO "public"."stocks" VALUES (15, '2026-01-14 10:21:25.474585', 10, 30, '2026-02-01 10:21:25.474585', 15);
+INSERT INTO "public"."stocks" VALUES (16, '2026-01-27 10:21:25.482913', 4, 12, '2026-02-01 10:21:25.482913', 16);
+INSERT INTO "public"."stocks" VALUES (17, '2026-01-04 10:21:25.489424', 3, 10, '2026-02-01 10:21:25.489424', 17);
+INSERT INTO "public"."stocks" VALUES (18, '2026-01-05 10:21:25.495438', 2, 6, '2026-02-01 10:21:25.496442', 18);
+INSERT INTO "public"."stocks" VALUES (19, '2026-01-23 10:21:25.501943', 5, 15, '2026-02-01 10:21:25.501943', 19);
+INSERT INTO "public"."stocks" VALUES (20, '2026-01-29 10:21:25.507459', 3, 8, '2026-02-01 10:21:25.507459', 20);
+INSERT INTO "public"."stocks" VALUES (21, '2026-01-08 10:21:25.514458', 15, 50, '2026-02-01 10:21:25.514458', 21);
+INSERT INTO "public"."stocks" VALUES (22, '2026-01-30 10:21:25.522524', 20, 60, '2026-02-01 10:21:25.522524', 22);
+INSERT INTO "public"."stocks" VALUES (23, '2026-01-29 10:21:25.531202', 30, 100, '2026-02-01 10:21:25.531202', 23);
+INSERT INTO "public"."stocks" VALUES (24, '2026-02-01 10:21:25.538725', 10, 25, '2026-02-01 10:21:25.539725', 24);
+INSERT INTO "public"."stocks" VALUES (25, '2026-02-01 10:22:02.028375', 15, 40, '2026-02-01 10:22:06.023652', 25);
 
 -- ----------------------------
 -- Table structure for suppliers
@@ -230,13 +230,13 @@ CACHE 1
 -- ----------------------------
 -- Records of suppliers
 -- ----------------------------
-INSERT INTO "public"."suppliers" VALUES (1, 'Jl. Sudirman No. 123, Jakarta Pusat', '2026-01-31 23:43:47.81371', 'Supplier komputer dan laptop terpercaya', 'info@tekmaju.com', 'PT Teknologi Maju', '02155512340', '2026-01-31 23:43:47.81371');
-INSERT INTO "public"."suppliers" VALUES (2, 'Jl. Gatot Subroto No. 456, Bandung', '2026-01-31 23:43:47.816112', 'Supplier elektronik dan komponen', 'sales@elektronikjaya.com', 'CV Elektronik Jaya', '02277712340', '2026-01-31 23:43:47.816112');
-INSERT INTO "public"."suppliers" VALUES (3, 'Jl. Ahmad Yani No. 789, Surabaya', '2026-01-31 23:43:47.818216', 'Supplier peralatan kantor dan furniture', 'contact@mitrasejahtera.com', 'UD Mitra Sejahtera', '03188812340', '2026-01-31 23:43:47.818216');
-INSERT INTO "public"."suppliers" VALUES (4, 'Jl. Rasuna Said No. 321, Jakarta Selatan', '2026-01-31 23:43:47.820216', 'Supplier networking dan server equipment', 'info@globaltech.com', 'PT Global Tech Solution', '02199912340', '2026-01-31 23:43:47.820216');
-INSERT INTO "public"."suppliers" VALUES (5, 'Jl. Diponegoro No. 654, Yogyakarta', '2026-01-31 23:43:47.822216', 'Supplier audio, video, dan multimedia', 'sales@digitalmedia.com', 'CV Digital Media', '027466612340', '2026-01-31 23:43:47.822216');
-INSERT INTO "public"."suppliers" VALUES (6, 'Jl. Mangga Dua, Jakarta Utara', '2026-01-31 23:43:47.82473', 'Supplier smartphone dan tablet', 'info@smartphonecenter.com', 'UD Smartphone Center', '02144412340', '2026-01-31 23:43:47.82473');
-INSERT INTO "public"."suppliers" VALUES (7, 'Jl. Sudirman No. 999, Surabaya', '2026-01-31 23:43:47.82573', 'Supplier peralatan gaming', 'sales@gamingpro.com', 'PT Gaming Pro', '03155512340', '2026-01-31 23:43:47.82573');
+INSERT INTO "public"."suppliers" VALUES (1, 'Jl. Sudirman No. 123, Jakarta Pusat', '2026-02-01 10:21:25.267756', 'Supplier komputer dan laptop terpercaya', 'info@tekmaju.com', 'PT Teknologi Maju', '02155512340', '2026-02-01 10:21:25.267756');
+INSERT INTO "public"."suppliers" VALUES (2, 'Jl. Gatot Subroto No. 456, Bandung', '2026-02-01 10:21:25.270755', 'Supplier elektronik dan komponen', 'sales@elektronikjaya.com', 'CV Elektronik Jaya', '02277712340', '2026-02-01 10:21:25.270755');
+INSERT INTO "public"."suppliers" VALUES (3, 'Jl. Ahmad Yani No. 789, Surabaya', '2026-02-01 10:21:25.272756', 'Supplier peralatan kantor dan furniture', 'contact@mitrasejahtera.com', 'UD Mitra Sejahtera', '03188812340', '2026-02-01 10:21:25.272756');
+INSERT INTO "public"."suppliers" VALUES (4, 'Jl. Rasuna Said No. 321, Jakarta Selatan', '2026-02-01 10:21:25.27426', 'Supplier networking dan server equipment', 'info@globaltech.com', 'PT Global Tech Solution', '02199912340', '2026-02-01 10:21:25.27426');
+INSERT INTO "public"."suppliers" VALUES (5, 'Jl. Diponegoro No. 654, Yogyakarta', '2026-02-01 10:21:25.277788', 'Supplier audio, video, dan multimedia', 'sales@digitalmedia.com', 'CV Digital Media', '027466612340', '2026-02-01 10:21:25.277788');
+INSERT INTO "public"."suppliers" VALUES (6, 'Jl. Mangga Dua, Jakarta Utara', '2026-02-01 10:21:25.279362', 'Supplier smartphone dan tablet', 'info@smartphonecenter.com', 'UD Smartphone Center', '02144412340', '2026-02-01 10:21:25.279362');
+INSERT INTO "public"."suppliers" VALUES (7, 'Jl. Sudirman No. 999, Surabaya', '2026-02-01 10:21:25.281368', 'Supplier peralatan gaming', 'sales@gamingpro.com', 'PT Gaming Pro', '03155512340', '2026-02-01 10:21:25.281368');
 
 -- ----------------------------
 -- Table structure for users
@@ -265,11 +265,12 @@ CACHE 1
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO "public"."users" VALUES (1, '2026-01-31 23:43:47.492121', 'admin@inventori.com', 'Administrator', 't', '$2a$10$iKUMsKpYjXRTOpH88iD8BupqRYzLahXJFgs6FM8p3kR8h1uJYZJiW', NULL, 'ADMIN', '2026-01-31 23:43:47.492121', 'admin');
-INSERT INTO "public"."users" VALUES (2, '2026-01-31 23:43:47.56693', 'staff@inventori.com', 'Staff Member', 't', '$2a$10$DNE3aPwvjZh.MfskeyTFr.XBAsUxn/e5YgPHwArK0g38.D.avNZw2', NULL, 'STAFF', '2026-01-31 23:43:47.56693', 'staff');
-INSERT INTO "public"."users" VALUES (3, '2026-01-31 23:43:47.632486', 'john@inventori.com', 'John Doe', 't', '$2a$10$iOgy//xFiaoR7qOz6q7gluyEsR7K8f3RYxfQAiPid6xx98GX8IBZG', NULL, 'ADMIN', '2026-01-31 23:43:47.632486', 'john_admin');
-INSERT INTO "public"."users" VALUES (4, '2026-01-31 23:43:47.702222', 'sarah@inventori.com', 'Sarah Wilson', 't', '$2a$10$CTl1bdx.EQVENgF2NQth2eMH4K1EwG.7K6fh/LViGShjG/JJbpwAu', NULL, 'STAFF', '2026-01-31 23:43:47.702222', 'sarah_staff');
-INSERT INTO "public"."users" VALUES (5, '2026-01-31 23:43:47.772487', 'mike@inventori.com', 'Mike Johnson', 't', '$2a$10$w0cf72ZB9AXz0fSy2/qXAeyRAHonhcnI/UJSBf2CoWKk1FInAqzwu', NULL, 'STAFF', '2026-01-31 23:43:47.772487', 'mike_staff');
+INSERT INTO "public"."users" VALUES (1, '2026-02-01 10:21:24.843367', 'admin@inventori.com', 'Administrator', 't', '$2a$10$USnV074RiHgCezIlhmfxIOC0e7X8D2fLDoA7v2itHkSw7nqLLIVBS', NULL, 'ADMIN', '2026-02-01 10:21:24.843367', 'admin');
+INSERT INTO "public"."users" VALUES (2, '2026-02-01 10:21:24.950209', 'staff@inventori.com', 'Staff Member', 't', '$2a$10$bYQ6HOrdYZx/EpaxtwaNeeNCbFmZOWq6xJ0/C9E6DaOZtOrfV6cy.', NULL, 'STAFF', '2026-02-01 10:21:24.950209', 'staff');
+INSERT INTO "public"."users" VALUES (3, '2026-02-01 10:21:25.021628', 'sarah.wilson@inventori.com', 'Sarah Wilson', 't', '$2a$10$YGXgJ27NOFB6V3dqZa8YEum8JuWzJAIBRYrddEZzxRZmixcUhRSUy', NULL, 'STAFF', '2026-02-01 10:21:25.021628', 'sarah_staff');
+INSERT INTO "public"."users" VALUES (4, '2026-02-01 10:21:25.090912', 'mike.johnson@inventori.com', 'Mike Johnson', 't', '$2a$10$Ig./5Xq/zbcvcK/KzAXrcOj10dlYaIW9PM/b.5sRcgBCKP5dS3Pha', NULL, 'STAFF', '2026-02-01 10:21:25.090912', 'mike_staff');
+INSERT INTO "public"."users" VALUES (5, '2026-02-01 10:21:25.160968', 'jessica.anderson@inventori.com', 'Jessica Anderson', 't', '$2a$10$WaIla69a7Vdhr4b7A8pRyeGnstT2Sx5ZQqwk5tVcONJrlKqDimCdC', NULL, 'STAFF', '2026-02-01 10:21:25.160968', 'jessica_staff');
+INSERT INTO "public"."users" VALUES (6, '2026-02-01 10:21:25.232541', 'david.martinez@inventori.com', 'David Martinez', 'f', '$2a$10$CPMnnQ//za6M6vqWfs0Fx.OFpg7AmG0nDdWOfZ83ZNBqolt/8R.r2', '', 'STAFF', '2026-02-01 10:23:31.364495', 'david_staff');
 
 -- ----------------------------
 -- Alter sequences owned by
