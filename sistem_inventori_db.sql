@@ -265,12 +265,11 @@ CACHE 1
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO "public"."users" VALUES (1, '2026-01-31 23:43:47.394043', 'superadmin@inventori.com', 'Super Administrator', 't', '$2a$10$X11Sq0tgWTczuaEoR5eG9.7G.A1WC5iOIpWAVCJNhdhlOL4.4Tk2q', NULL, 'SUPER_ADMIN', '2026-01-31 23:43:47.394043', 'superadmin');
-INSERT INTO "public"."users" VALUES (2, '2026-01-31 23:43:47.492121', 'admin@inventori.com', 'Administrator', 't', '$2a$10$iKUMsKpYjXRTOpH88iD8BupqRYzLahXJFgs6FM8p3kR8h1uJYZJiW', NULL, 'ADMIN', '2026-01-31 23:43:47.492121', 'admin');
-INSERT INTO "public"."users" VALUES (3, '2026-01-31 23:43:47.56693', 'staff@inventori.com', 'Staff Member', 't', '$2a$10$DNE3aPwvjZh.MfskeyTFr.XBAsUxn/e5YgPHwArK0g38.D.avNZw2', NULL, 'STAFF', '2026-01-31 23:43:47.56693', 'staff');
-INSERT INTO "public"."users" VALUES (4, '2026-01-31 23:43:47.632486', 'john@inventori.com', 'John Doe', 't', '$2a$10$iOgy//xFiaoR7qOz6q7gluyEsR7K8f3RYxfQAiPid6xx98GX8IBZG', NULL, 'ADMIN', '2026-01-31 23:43:47.632486', 'john_admin');
-INSERT INTO "public"."users" VALUES (5, '2026-01-31 23:43:47.702222', 'sarah@inventori.com', 'Sarah Wilson', 't', '$2a$10$CTl1bdx.EQVENgF2NQth2eMH4K1EwG.7K6fh/LViGShjG/JJbpwAu', NULL, 'STAFF', '2026-01-31 23:43:47.702222', 'sarah_staff');
-INSERT INTO "public"."users" VALUES (6, '2026-01-31 23:43:47.772487', 'mike@inventori.com', 'Mike Johnson', 't', '$2a$10$w0cf72ZB9AXz0fSy2/qXAeyRAHonhcnI/UJSBf2CoWKk1FInAqzwu', NULL, 'STAFF', '2026-01-31 23:43:47.772487', 'mike_staff');
+INSERT INTO "public"."users" VALUES (1, '2026-01-31 23:43:47.492121', 'admin@inventori.com', 'Administrator', 't', '$2a$10$iKUMsKpYjXRTOpH88iD8BupqRYzLahXJFgs6FM8p3kR8h1uJYZJiW', NULL, 'ADMIN', '2026-01-31 23:43:47.492121', 'admin');
+INSERT INTO "public"."users" VALUES (2, '2026-01-31 23:43:47.56693', 'staff@inventori.com', 'Staff Member', 't', '$2a$10$DNE3aPwvjZh.MfskeyTFr.XBAsUxn/e5YgPHwArK0g38.D.avNZw2', NULL, 'STAFF', '2026-01-31 23:43:47.56693', 'staff');
+INSERT INTO "public"."users" VALUES (3, '2026-01-31 23:43:47.632486', 'john@inventori.com', 'John Doe', 't', '$2a$10$iOgy//xFiaoR7qOz6q7gluyEsR7K8f3RYxfQAiPid6xx98GX8IBZG', NULL, 'ADMIN', '2026-01-31 23:43:47.632486', 'john_admin');
+INSERT INTO "public"."users" VALUES (4, '2026-01-31 23:43:47.702222', 'sarah@inventori.com', 'Sarah Wilson', 't', '$2a$10$CTl1bdx.EQVENgF2NQth2eMH4K1EwG.7K6fh/LViGShjG/JJbpwAu', NULL, 'STAFF', '2026-01-31 23:43:47.702222', 'sarah_staff');
+INSERT INTO "public"."users" VALUES (5, '2026-01-31 23:43:47.772487', 'mike@inventori.com', 'Mike Johnson', 't', '$2a$10$w0cf72ZB9AXz0fSy2/qXAeyRAHonhcnI/UJSBf2CoWKk1FInAqzwu', NULL, 'STAFF', '2026-01-31 23:43:47.772487', 'mike_staff');
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -382,7 +381,7 @@ ALTER TABLE "public"."users" ADD CONSTRAINT "ukr43af9ap4edm43mmtq01oddj6" UNIQUE
 -- ----------------------------
 -- Checks structure for table users
 -- ----------------------------
-ALTER TABLE "public"."users" ADD CONSTRAINT "users_role_check" CHECK (role::text = ANY (ARRAY['SUPER_ADMIN'::character varying, 'ADMIN'::character varying, 'STAFF'::character varying]::text[]));
+ALTER TABLE "public"."users" ADD CONSTRAINT "users_role_check" CHECK (role::text = ANY (ARRAY['ADMIN'::character varying, 'STAFF'::character varying]::text[]));
 
 -- ----------------------------
 -- Primary Key structure for table users

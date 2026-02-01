@@ -8,11 +8,6 @@ document.addEventListener("DOMContentLoaded", function () {
   checkAuth();
   checkAdminRole();
 
-  // Only SUPER_ADMIN can access user management - redirect others
-  if (!checkSuperAdminRole()) {
-    return; // Stop execution if not super admin
-  }
-
   setUserDisplay();
   setupLogoutHandler();
 
@@ -35,6 +30,79 @@ function setupEventListeners() {
 
   // Status filter
   document.getElementById("statusFilter").addEventListener("change", filterUsers);
+
+  // Real-time validation for email and phone
+  document.getElementById("email").addEventListener("input", function () {
+    const validation = validateEmail(this.value);
+    if (!validation.valid) {
+      showFieldError("email", validation.message);
+    } else {
+      clearFieldError("email");
+    }
+  });
+
+  document.getElementById("phoneNumber").addEventListener("input", function () {
+    const validation = validatePhoneNumber(this.value);
+    if (this.value && !validation.valid) {
+      showFieldError("phoneNumber", validation.message);
+    } else {
+      clearFieldError("phoneNumber");
+    }
+  });
+}
+
+// Validation functions for email and phone
+function validateEmail(email) {
+  if (!email || email.trim() === "") {
+    return { valid: false, message: "Email tidak boleh kosong" };
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { valid: false, message: "Format email tidak valid. Contoh: user@example.com" };
+  }
+  return { valid: true, message: "" };
+}
+
+function validatePhoneNumber(phone) {
+  if (!phone || phone.trim() === "") {
+    return { valid: true, message: "" }; // Phone is optional
+  }
+  const phoneRegex = /^[0-9]{10,15}$/;
+  if (!phoneRegex.test(phone.replace(/[\s-]/g, ""))) {
+    return { valid: false, message: "Nomor telepon hanya boleh berisi angka (10-15 digit)" };
+  }
+  return { valid: true, message: "" };
+}
+
+function showFieldError(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  field.classList.add("is-invalid");
+
+  // Remove existing error message if any
+  const existingError = field.parentElement.querySelector(".invalid-feedback");
+  if (existingError) {
+    existingError.remove();
+  }
+
+  // Add new error message
+  const errorDiv = document.createElement("div");
+  errorDiv.className = "invalid-feedback";
+  errorDiv.textContent = message;
+  field.parentElement.appendChild(errorDiv);
+}
+
+function clearFieldError(fieldId) {
+  const field = document.getElementById(fieldId);
+  field.classList.remove("is-invalid");
+  const existingError = field.parentElement.querySelector(".invalid-feedback");
+  if (existingError) {
+    existingError.remove();
+  }
+}
+
+function clearAllFieldErrors() {
+  clearFieldError("email");
+  clearFieldError("phoneNumber");
 }
 
 // Setup role options based on current user's role
@@ -43,21 +111,15 @@ function setupRoleOptions() {
   const roleHint = document.getElementById("roleHint");
   const adminRoleOption = document.getElementById("adminRoleOption");
 
-  // Only SUPER_ADMIN can create/edit ADMIN users
-  if (currentUserRole === "SUPER_ADMIN") {
-    // Super Admin can create Admin users
-    if (adminRoleOption) {
-      adminRoleOption.style.display = "block";
-    }
-    roleHint.textContent = "Sebagai Super Admin, Anda dapat membuat user Admin";
-    roleHint.className = "form-text text-success";
-  } else {
-    // Regular Admin can only create Staff users
+  // ADMIN can only create STAFF users
+  if (currentUserRole === "ADMIN") {
+    // Hide ADMIN option - Admin can only create Staff
     if (adminRoleOption) {
       adminRoleOption.style.display = "none";
     }
+    roleSelect.value = "STAFF";
     roleHint.textContent = "Admin hanya dapat membuat user Staff";
-    roleHint.className = "form-text text-warning";
+    roleHint.className = "form-text text-info";
   }
 }
 
@@ -77,9 +139,7 @@ async function loadUserStats() {
     const stats = response.data;
 
     document.getElementById("totalUsers").textContent = stats.totalUsers || 0;
-    // Combine Super Admin and Admin count for display, or show separately
-    const totalAdmins = (stats.superAdminCount || 0) + (stats.adminCount || 0);
-    document.getElementById("adminCount").textContent = totalAdmins;
+    document.getElementById("adminCount").textContent = stats.adminCount || 0;
     document.getElementById("staffCount").textContent = stats.staffCount || 0;
     document.getElementById("activeUsers").textContent = stats.activeUsers || 0;
   } catch (error) {
@@ -98,18 +158,17 @@ function displayUsers(users) {
   tbody.innerHTML = users
     .map((user) => {
       const initials = getInitials(user.fullName || user.username);
-      const isSuperAdmin = user.role === "SUPER_ADMIN";
       const isAdmin = user.role === "ADMIN";
-      const avatarClass = isSuperAdmin ? "avatar-super-admin" : isAdmin ? "avatar-admin" : "avatar-staff";
-      const roleBadgeClass = isSuperAdmin ? "bg-danger" : isAdmin ? "bg-primary" : "bg-secondary";
-      const roleDisplay = isSuperAdmin ? "Super Admin" : user.role;
+      const avatarClass = isAdmin ? "avatar-admin" : "avatar-staff";
+      const roleBadgeClass = isAdmin ? "bg-primary" : "bg-secondary";
+      const roleDisplay = isAdmin ? "Admin" : "Staff";
       const statusBadgeClass = user.isActive ? "bg-success" : "bg-danger";
       const statusText = user.isActive ? "Aktif" : "Tidak Aktif";
       const isCurrentUser = user.id.toString() === currentUserId;
 
-      // Determine if edit/delete is allowed based on current user's role
-      const canEdit = currentUserRole === "SUPER_ADMIN" || (currentUserRole === "ADMIN" && user.role === "STAFF");
-      const canDelete = (currentUserRole === "SUPER_ADMIN" && !isSuperAdmin && !isCurrentUser) || (currentUserRole === "ADMIN" && user.role === "STAFF" && !isCurrentUser);
+      // Admin can edit and delete all users except themselves
+      const canEdit = currentUserRole === "ADMIN";
+      const canDelete = currentUserRole === "ADMIN" && !isCurrentUser;
 
       return `
       <tr>
@@ -192,6 +251,7 @@ function openAddModal() {
   document.getElementById("passwordHint").textContent = "Minimal 6 karakter";
   document.getElementById("isActive").value = "true";
   document.getElementById("role").value = "STAFF";
+  clearAllFieldErrors();
 
   // Setup role options based on current user's role
   setupRoleOptions();
@@ -199,6 +259,7 @@ function openAddModal() {
 
 async function openEditModal(id) {
   try {
+    clearAllFieldErrors();
     const response = await axios.get(`${API_ENDPOINTS.users}/${id}`);
     const user = response.data;
 
@@ -219,15 +280,11 @@ async function openEditModal(id) {
     // Setup role options and handle restrictions
     setupRoleOptions();
 
-    // Disable role change for SUPER_ADMIN and ADMIN (if current user is not SUPER_ADMIN)
+    // Don't allow editing own role
     const roleSelect = document.getElementById("role");
-    if (user.role === "SUPER_ADMIN") {
+    if (user.id.toString() === currentUserId) {
       roleSelect.disabled = true;
-      document.getElementById("roleHint").textContent = "Role Super Admin tidak dapat diubah";
-      document.getElementById("roleHint").className = "form-text text-danger";
-    } else if (user.role === "ADMIN" && currentUserRole !== "SUPER_ADMIN") {
-      roleSelect.disabled = true;
-      document.getElementById("roleHint").textContent = "Hanya Super Admin yang dapat mengubah role Admin";
+      document.getElementById("roleHint").textContent = "Tidak dapat mengubah role sendiri";
       document.getElementById("roleHint").className = "form-text text-warning";
     } else {
       roleSelect.disabled = false;
@@ -241,8 +298,18 @@ async function openEditModal(id) {
 }
 
 async function saveUser() {
+  const form = document.getElementById("userForm");
+  clearAllFieldErrors();
+
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
   const id = document.getElementById("userId").value;
   const password = document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const phoneNumber = document.getElementById("phoneNumber").value;
 
   // Validasi password untuk user baru
   if (!id && (!password || password.length < 6)) {
@@ -250,11 +317,31 @@ async function saveUser() {
     return;
   }
 
+  // Custom validation for email and phone
+  const emailValidation = validateEmail(email);
+  const phoneValidation = validatePhoneNumber(phoneNumber);
+
+  let hasErrors = false;
+
+  if (!emailValidation.valid) {
+    showFieldError("email", emailValidation.message);
+    hasErrors = true;
+  }
+
+  if (!phoneValidation.valid) {
+    showFieldError("phoneNumber", phoneValidation.message);
+    hasErrors = true;
+  }
+
+  if (hasErrors) {
+    return;
+  }
+
   const userData = {
     username: document.getElementById("username").value,
     fullName: document.getElementById("fullName").value,
-    email: document.getElementById("email").value,
-    phoneNumber: document.getElementById("phoneNumber").value,
+    email: email,
+    phoneNumber: phoneNumber,
     role: document.getElementById("role").value,
     isActive: document.getElementById("isActive").value === "true",
   };
@@ -296,11 +383,10 @@ async function viewUser(id) {
     const user = response.data;
 
     const initials = getInitials(user.fullName || user.username);
-    const isSuperAdmin = user.role === "SUPER_ADMIN";
     const isAdmin = user.role === "ADMIN";
-    const avatarClass = isSuperAdmin ? "avatar-super-admin" : isAdmin ? "avatar-admin" : "avatar-staff";
-    const roleBadgeClass = isSuperAdmin ? "bg-danger" : isAdmin ? "bg-primary" : "bg-secondary";
-    const roleDisplay = isSuperAdmin ? "Super Admin" : user.role;
+    const avatarClass = isAdmin ? "avatar-admin" : "avatar-staff";
+    const roleBadgeClass = isAdmin ? "bg-primary" : "bg-secondary";
+    const roleDisplay = isAdmin ? "Admin" : "Staff";
 
     document.getElementById("viewUserAvatar").className = `user-avatar mx-auto mb-3 ${avatarClass}`;
     document.getElementById("viewUserAvatar").style.cssText = "width: 80px; height: 80px; font-size: 2rem;";
